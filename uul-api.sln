@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30709.132
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uul-api", "uul-api.csproj", "{81D6D825-8BDD-43FC-8D3D-6C4BDC2D5775}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{81D6D825-8BDD-43FC-8D3D-6C4BDC2D5775}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81D6D825-8BDD-43FC-8D3D-6C4BDC2D5775}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81D6D825-8BDD-43FC-8D3D-6C4BDC2D5775}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81D6D825-8BDD-43FC-8D3D-6C4BDC2D5775}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1518AE94-A7CD-439A-8632-32D2BE5CFFD0}
+	EndGlobalSection
+EndGlobal
