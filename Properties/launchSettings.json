@@ -12,7 +12,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "api/Appartments",
+      "launchUrl": "api/Timeslots/2020/12/15",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

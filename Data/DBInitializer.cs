@@ -9,7 +9,6 @@ namespace uul_api.Data {
         public static void Initialize(UULContext context) {
             context.Database.EnsureCreated();
 
-            // Look for any students.
             if (context.Appartments.Any()) {
                 // return;   // DB has been seeded
                 context.Appartments.RemoveRange(context.Appartments);
@@ -28,6 +27,16 @@ namespace uul_api.Data {
             foreach (Appartment appartment in createAppartments("D", 12, 8)) {
                 context.Appartments.Add(appartment);
             }
+
+            if (context.TimeSlots.Any()) {
+                context.TimeSlots.RemoveRange(context.TimeSlots);
+                context.SaveChanges();
+            }
+
+
+            var newSlots = DbHelper.CreateTodayTimeSlots(context, TimeSpan.FromMinutes(60), 5);
+            newSlots.Wait();
+            context.TimeSlots.AddRange(newSlots.Result);
 
             context.SaveChanges();
         }
