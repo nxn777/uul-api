@@ -7,8 +7,9 @@ using uul_api.Models;
 namespace uul_api.Data {
     public class DBInitializer {
         public static void Initialize(UULContext context) {
+            context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
-
+            
             if (context.Appartments.Any()) {
                 // return;   // DB has been seeded
                 context.Appartments.RemoveRange(context.Appartments);

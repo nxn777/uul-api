@@ -1,27 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace uul_api.Models {
     public class User {
         public long ID { get; set; }
-        public long AppartmentID { get; set; }
         public string Name { get; set; }
         public DateTime CreatedAt { get; set; }
-        public bool IsActive { get; set; }
+        public bool IsActivated { get; set; }
         public string Hash { get; set; }
+        public string Salt { get; set; }
+        public string ApartmentCode { get; set; }
+        public string AvatarSrc { get; set; }
     }
 
-    public class UserDTO {
-        public long AppartmentID { get; set; }
+    public class NewUserDTO {
+        public string ApartmentCode { get; set; }
         public string Name { get; set; }
-        public string Hash { get; set; }
+        public string Pwd { get; set; }
+        public string AvatarSrc { get; set; }
     }
 
     public class UserInfoDTO {
-        public long AppartmentID { get; set; }
+        public string ApartmentCode { get; set; }
         public string Name { get; set; }
+    }
+
+    public class UserLoginInfoDTO {
+        public string ApartmentCode { get; set; }
+        public string Name { get; set; }
+        public string Pwd { get; set; }
     }
 
     public class UserUpdateDTO {

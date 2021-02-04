@@ -13,6 +13,9 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using uul_api.Models;
 using uul_api.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace uul_api {
     public class Startup {
@@ -26,6 +29,17 @@ namespace uul_api {
         public void ConfigureServices(IServiceCollection services) {
             services.AddDbContext<UULContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddHostedService<TimeSlotsCreationService>();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options => {
+                options.TokenValidationParameters = new TokenValidationParameters {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = Configuration["Jwt:Issuer"],
+                    ValidAudience = Configuration["Jwt:Issuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+                };
+            });
             services.AddControllers();
         }
 
@@ -38,7 +52,7 @@ namespace uul_api {
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => {

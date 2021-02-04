@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using uul_api.Models;
+using uul_api.Security;
 
 namespace uul_api.Controllers {
     [Route("api/[controller]")]
@@ -42,26 +44,22 @@ namespace uul_api.Controllers {
             return BadRequest();
         }
 
-        // POST: api/Appartments
+        // POST: api/Appartments/my
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("my")]
-        public async Task<ActionResult<IEnumerable<UserInfoDTO>>> GetMyAppartmentInfo(UserDTO user) {
-            var candidate = await _context.Users.Where(u => u.Name.Equals(user.Name) && u.Hash.Equals(user.Hash) && u.AppartmentID == user.AppartmentID).FirstAsync();
-            if (candidate == null || !AppartmentExists(user.AppartmentID)) {
-                return BadRequest();
+        [HttpGet("my")]
+        [Authorize]
+        public async Task<ActionResult<UULResponse>> GetMyAppartmentInfo() {
+            var currentUser = HttpContext.User;
+            UULResponse response; 
+            try {
+                var userInfo = SecHelper.GetUserInfo(currentUser.Claims);
+                response = new UULResponse() { Success = true, Message = "", Data = userInfo };
+            } catch (Exception e) {
+                response = new UULResponse() { Success = false, Message = e.Message, Data = null };
             }
-
-            return await _context.Users
-                .Where(u => u.AppartmentID == user.AppartmentID)
-                .Select(i => new UserInfoDTO { AppartmentID = i.AppartmentID, Name = i.Name })
-                .ToListAsync();
+            return response;
         }
 
-        // DELETE: api/Appartments/5
-        [HttpDelete("{id}")]
-        public IActionResult DeleteAppartment(long id) {
-            return BadRequest();
-        }
 
         private bool AppartmentExists(long id) {
             return _context.Appartments.Any(e => e.ID == id);
