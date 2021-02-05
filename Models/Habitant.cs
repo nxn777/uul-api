@@ -16,6 +16,11 @@ namespace uul_api.Models {
             Name = userInfo.Name;
             AvatarSrc = userInfo.AvatarSrc;
         }
+
+        public Habitant(HabitantDTO habitantDTO) {
+            Name = habitantDTO.Name;
+            AvatarSrc = habitantDTO.AvatarSrc;
+        }
     }
 
     public class HabitantDTO {
