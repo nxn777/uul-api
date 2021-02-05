@@ -13,7 +13,7 @@ namespace uul_api.Models {
         public string Hash { get; set; }
         public string Salt { get; set; }
         public string ApartmentCode { get; set; }
-        public string AvatarSrc { get; set; }
+        public ICollection<Habitant> Habitants { get; set; }
     }
 
     public class NewUserDTO {
@@ -26,6 +26,15 @@ namespace uul_api.Models {
     public class UserInfoDTO {
         public string ApartmentCode { get; set; }
         public string Name { get; set; }
+        public bool IsActivated { get; set; }
+        public IEnumerable<HabitantDTO> Habitants { get; set; }
+        public UserInfoDTO() { }
+        public UserInfoDTO(User user) {
+            this.ApartmentCode = user.ApartmentCode;
+            this.Name = user.Name;
+            this.IsActivated = user.IsActivated;
+            this.Habitants = user.Habitants.Select(h => new HabitantDTO(h)).ToList();
+        }
     }
 
     public class UserLoginInfoDTO {

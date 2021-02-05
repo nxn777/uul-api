@@ -46,19 +46,7 @@ namespace uul_api.Controllers {
 
         // POST: api/Appartments/my
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpGet("my")]
-        [Authorize]
-        public async Task<ActionResult<UULResponse>> GetMyAppartmentInfo() {
-            var currentUser = HttpContext.User;
-            UULResponse response; 
-            try {
-                var userInfo = SecHelper.GetUserInfo(currentUser.Claims);
-                response = new UULResponse() { Success = true, Message = "", Data = userInfo };
-            } catch (Exception e) {
-                response = new UULResponse() { Success = false, Message = e.Message, Data = null };
-            }
-            return response;
-        }
+        
 
 
         private bool AppartmentExists(long id) {

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using uul_api.Models;
+using uul_api.Models.Helpers;
 using uul_api.Security;
 
 namespace uul_api.Controllers {
@@ -88,6 +89,9 @@ namespace uul_api.Controllers {
 
             var salt = SecHelper.CreateSalt();
 
+            var habitant = new Habitant(newUser);
+            _context.Habitants.Add(habitant);
+
             var userToSave = new User {
                 Name = newUser.Name,
                 IsActivated = false,
@@ -95,13 +99,35 @@ namespace uul_api.Controllers {
                 Hash = SecHelper.SaltAndHashPwd(newUser.Pwd, salt),
                 Salt = salt,
                 ApartmentCode = newUser.ApartmentCode,
-                AvatarSrc = newUser.AvatarSrc
+                Habitants = new List<Habitant>() { habitant }
             };
             _context.Users.Add(userToSave);
 
+            
             await _context.SaveChangesAsync();
 
-            return new UULResponse() { Success = true, Message = "User was created", Data = newUser };
+
+            return new UULResponse() { Success = true, Message = "User was created", Data = new UserInfoDTO(userToSave) };
+        }
+
+        [HttpGet("info")]
+        [Authorize]
+        public async Task<ActionResult<UULResponse>> GetMyUserInfo() {
+            var currentUser = HttpContext.User;
+            UULResponse response;
+            try {
+                var userInfo = SecHelper.GetUserInfo(currentUser.Claims);
+                var user = await _context.Users.Where(u => u.Name.Equals(userInfo.Name) && u.ApartmentCode.Equals(userInfo.ApartmentCode)).FirstAsync();
+                var habitants = await _context.Habitants.Where(h => h.User.ID == user.ID).Select(h => new HabitantDTO(h)).ToListAsync();
+                userInfo.IsActivated = user.IsActivated;
+                userInfo.Habitants = habitants;
+                //userInfo.AvatarSrc = user.AvatarSrc;
+                //userInfo.Habitants = user.Habitants;
+                response = new UULResponse() { Success = true, Message = "", Data = userInfo };
+            } catch (Exception e) {
+                response = new UULResponse() { Success = false, Message = e.Message, Data = null };
+            }
+            return response;
         }
 
         private async Task<UserInfoDTO> AuthenticateUser(UserLoginInfoDTO loginInfoDTO) {
