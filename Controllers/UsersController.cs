@@ -71,17 +71,20 @@ namespace uul_api.Controllers {
                 var userInfoDTO = await AuthenticateUser(loginInfoDTO);
                 var tokenString = SecHelper.GenerateJSONWebToken(userInfoDTO, _config);
                 response = new UULResponse() { Success = true, Message = "Login success", Data = tokenString };
-            } catch (Exception e) {
+            } catch (Exception _) {
 
-                response = new UULResponse() { Success = false, Message = "Login failed", Data = e.Message };
+                response = new UULResponse() { Success = false, Message = "Login failed", Data = null };
             }
             return response;
         }
 
         [AllowAnonymous]
         [HttpPost("new")]
-        public async Task<ActionResult<UULResponse>> PostUser(NewUserDTO newUser) {
-            var exist = await _context.Users.AnyAsync(u => u.Name.Equals(newUser.Name) && u.ApartmentCode == newUser.ApartmentCode);
+        public async Task<ActionResult<UULResponse>> NewUser(NewUserDTO newUser) {
+            if (!newUser.isValid(out var msg)) {
+                return new UULResponse() { Success = false, Message = msg, Data = null };
+            }
+            var exist = await _context.Users.AnyAsync(u => u.Login.Equals(newUser.Login) && u.ApartmentCode == newUser.ApartmentCode);
 
             if (exist) {
                 return new UULResponse() { Success = false, Message = "User already exists", Data = null };
@@ -93,7 +96,7 @@ namespace uul_api.Controllers {
             _context.Habitants.Add(habitant);
 
             var userToSave = new User {
-                Name = newUser.Name,
+                Login = newUser.Login,
                 IsActivated = false,
                 CreatedAt = DateTime.UtcNow,
                 Hash = SecHelper.SaltAndHashPwd(newUser.Pwd, salt),
@@ -117,7 +120,7 @@ namespace uul_api.Controllers {
             UULResponse response;
             try {
                 var userInfo = SecHelper.GetUserInfo(currentUser.Claims);
-                var user = await _context.Users.Where(u => u.Name.Equals(userInfo.Name) && u.ApartmentCode.Equals(userInfo.ApartmentCode)).FirstAsync();
+                var user = await _context.Users.Where(u => u.Login.Equals(userInfo.Login) && u.ApartmentCode.Equals(userInfo.ApartmentCode)).FirstAsync();
                 var habitants = await _context.Habitants.Where(h => h.User.ID == user.ID).Select(h => new HabitantDTO(h)).ToListAsync();
                 userInfo.IsActivated = user.IsActivated;
                 userInfo.Habitants = habitants;
@@ -135,7 +138,7 @@ namespace uul_api.Controllers {
             UULResponse response;
             try {
                 var userInfo = SecHelper.GetUserInfo(currentUser.Claims);
-                var user = await _context.Users.Where(u => u.Name.Equals(userInfo.Name) && u.ApartmentCode.Equals(userInfo.ApartmentCode)).FirstAsync();
+                var user = await _context.Users.Where(u => u.Login.Equals(userInfo.Login) && u.ApartmentCode.Equals(userInfo.ApartmentCode)).FirstAsync();
                 var habitant = new Habitant(habitantDTO) { User = user };
                 _context.Habitants.Add(habitant);
                 await _context.SaveChangesAsync();
@@ -150,12 +153,12 @@ namespace uul_api.Controllers {
         }
 
         private async Task<UserInfoDTO> AuthenticateUser(UserLoginInfoDTO loginInfoDTO) {
-            var stored = await _context.Users.Where(u => u.Name.Equals(loginInfoDTO.Name) && u.ApartmentCode.Equals(loginInfoDTO.ApartmentCode)).FirstAsync();
+            var stored = await _context.Users.Where(u => u.Login.Equals(loginInfoDTO.Login) && u.ApartmentCode.Equals(loginInfoDTO.ApartmentCode)).FirstAsync();
             var saltedAndHashedPwd = SecHelper.SaltAndHashPwd(loginInfoDTO.Pwd, stored.Salt);
             if (saltedAndHashedPwd != stored.Hash) {
                 throw new ArgumentException("Wrong credentials");
             }
-            return new UserInfoDTO() { ApartmentCode = loginInfoDTO.ApartmentCode, Name = loginInfoDTO.Name };
+            return new UserInfoDTO() { ApartmentCode = loginInfoDTO.ApartmentCode, Login = loginInfoDTO.Login };
         }
 
     }

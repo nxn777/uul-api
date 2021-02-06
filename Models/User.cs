@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace uul_api.Models {
     public class User {
         public long ID { get; set; }
-        public string Name { get; set; }
+        public string Login { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool IsActivated { get; set; }
         public string Hash { get; set; }
@@ -19,19 +19,41 @@ namespace uul_api.Models {
     public class NewUserDTO {
         public string ApartmentCode { get; set; }
         public string Name { get; set; }
+        public string Login { get; set; }
         public string Pwd { get; set; }
         public string AvatarSrc { get; set; }
+
+        public bool isValid(out string message) {
+            if (ApartmentCode == null || ApartmentCode.Length == 0) {
+                message = "Incorrect Apartment";
+                return false;
+            }
+            if (Name == null || Name.Length == 0) {
+                message = "Name is too short";
+                return false;
+            }
+            if (Login == null || Login.Length == 0) {
+                message = "Login is too short";
+                return false;
+            }
+            if (Pwd == null || Pwd.Length < 5) {
+                message = "Password is too short";
+                return false;
+            }
+            message = "";
+            return true;
+        }
     }
 
     public class UserInfoDTO {
         public string ApartmentCode { get; set; }
-        public string Name { get; set; }
+        public string Login { get; set; }
         public bool IsActivated { get; set; }
         public IEnumerable<HabitantDTO> Habitants { get; set; }
         public UserInfoDTO() { }
         public UserInfoDTO(User user) {
             this.ApartmentCode = user.ApartmentCode;
-            this.Name = user.Name;
+            this.Login = user.Login;
             this.IsActivated = user.IsActivated;
             this.Habitants = user.Habitants.Select(h => new HabitantDTO(h)).ToList();
         }
@@ -39,7 +61,7 @@ namespace uul_api.Models {
 
     public class UserLoginInfoDTO {
         public string ApartmentCode { get; set; }
-        public string Name { get; set; }
+        public string Login { get; set; }
         public string Pwd { get; set; }
     }
 

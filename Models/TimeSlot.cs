@@ -16,7 +16,7 @@ namespace uul_api.Models {
                 ID = this.ID,
                 Start = this.Start,
                 End = this.End,
-                OccupiedBy = this.OccupiedBy.Select(u => new UserInfoDTO { Name = u.Name }).ToList()
+                OccupiedBy = {}
             };
         }
     }

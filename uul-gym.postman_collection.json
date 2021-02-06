@@ -15,7 +15,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n\t\"id\": null,\r\n\t\"name\": \"Test\",\r\n\t\"pwd\": \"pwdTest\",\r\n\t\"isActivated\": null,\r\n\t\"apartmentCode\": \"A1003\",\r\n\t\"avatarSrc\": \"assets/avatars/user (1).png\"\r\n}",
+							"raw": "{\r\n\t\"id\": null,\r\n    \"login\": \"testLogin\",\r\n\t\"name\": \"Test\",\r\n\t\"pwd\": \"pwdTest\",\r\n\t\"isActivated\": null,\r\n\t\"apartmentCode\": \"A1003\",\r\n\t\"avatarSrc\": \"assets/avatars/user (1).png\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"

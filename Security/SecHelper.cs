@@ -13,7 +13,7 @@ using uul_api.Models;
 namespace uul_api.Security {
 
     public class SecHelper {
-        private static readonly string ClaimName = "Name";
+        private static readonly string ClaimLogin = "Login";
         private static readonly string ClaimApartmentCode = "ApartmentCode";
         public static string GenerateJSONWebToken(UserInfoDTO userInfo, IConfiguration _config) {
             var key = _config["Jwt:Key"];
@@ -21,7 +21,7 @@ namespace uul_api.Security {
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new[] {
-                new Claim(ClaimName, userInfo.Name),
+                new Claim(ClaimLogin, userInfo.Login),
                 new Claim(ClaimApartmentCode, userInfo.ApartmentCode)
             };
 
@@ -35,9 +35,9 @@ namespace uul_api.Security {
         }
 
         public static UserInfoDTO GetUserInfo(IEnumerable<Claim> claims) {
-            var name = claims.Where(e => e.Type.Equals(ClaimName)).First();
+            var login = claims.Where(e => e.Type.Equals(ClaimLogin)).First();
             var apartmentCode = claims.Where(e => e.Type.Equals(ClaimApartmentCode)).First();
-            return new UserInfoDTO() { Name = name.Value, ApartmentCode = apartmentCode.Value };
+            return new UserInfoDTO() { Login = login.Value, ApartmentCode = apartmentCode.Value };
         }
 
         public static string SaltAndHashPwd(string pwd, string salt) {
