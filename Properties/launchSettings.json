@@ -12,7 +12,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "api/Timeslots/2020/12/15",
+      "launchUrl": "api/Rules",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -21,7 +21,7 @@
       "commandName": "Project",
       "dotnetRunMessages": "true",
       "launchBrowser": true,
-      "launchUrl": "api/Appartments",
+      "launchUrl": "api/Rules",
       "applicationUrl": "https://localhost:5001;http://localhost:5000;https://0.0.0.0:5001",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

@@ -33,6 +33,7 @@ namespace uul_api.Data {
                 context.SpecialFloors.AddRange(specialFloors);
 
                 var rules = new Rules() {
+                    Version = 0,
                     PersonsPerTimeSlot = 4,
                     HabitantsPerApartment = 4,
                     DoorsPerFloor = 8,

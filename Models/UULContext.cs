@@ -9,8 +9,6 @@ namespace uul_api.Models {
         public UULContext(DbContextOptions<UULContext> options)
             : base(options) {
         }
-
-        public DbSet<Appartment> Appartments { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Habitant> Habitants { get; set; }
         public DbSet<TimeSlot> TimeSlots { get; set; }
@@ -23,6 +21,19 @@ namespace uul_api.Models {
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Habitants)
                 .WithOne(h => h.User)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Rules>()
+                .HasMany(r => r.Towers)
+                .WithOne(t => t.Rules)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Rules>()
+                .HasMany(r => r.SpecialFloors)
+                .WithOne(t => t.Rules)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Rules>()
+                .HasMany(r => r.BannedApartments)
+                .WithOne(t => t.Rules)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

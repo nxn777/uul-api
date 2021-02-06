@@ -1,0 +1,161 @@
+{
+	"info": {
+		"_postman_id": "a73ae4c0-8773-47a6-bd3e-3048d2a38b9c",
+		"name": "uul-gym",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "Add User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"id\": null,\r\n\t\"name\": \"Test\",\r\n\t\"pwd\": \"pwdTest\",\r\n\t\"isActivated\": null,\r\n\t\"apartmentCode\": \"A1003\",\r\n\t\"avatarSrc\": \"assets/avatars/user (1).png\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOST}}/api/users/new",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"new"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"name\": \"Test\",\r\n\t\"pwd\": \"pwdTest\",\r\n\t\"apartmentCode\": \"A1003\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOST}}/api/users/login",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Info",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOST}}/api/users/info",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"info"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Habitant",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": null
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Rules",
+			"item": [
+				{
+					"name": "Get Rules",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOST}}/api/rules",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"rules"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "HOST",
+			"value": "https://192.168.100.8:5001"
+		},
+		{
+			"key": "TOKEN",
+			"value": ""
+		}
+	]
+}
