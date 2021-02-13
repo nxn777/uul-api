@@ -43,6 +43,10 @@ namespace uul_api.Models {
             message = "";
             return true;
         }
+
+        public UserLoginInfoDTO toLoginInfoDTO() {
+            return new UserLoginInfoDTO() { ApartmentCode = this.ApartmentCode, Login = this.Login, Pwd = this.Pwd };
+        }
     }
 
     public class UserInfoDTO {

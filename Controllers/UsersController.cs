@@ -109,8 +109,10 @@ namespace uul_api.Controllers {
             
             await _context.SaveChangesAsync();
 
+            var userInfoDTO = await AuthenticateUser(newUser.toLoginInfoDTO());
+            var tokenString = SecHelper.GenerateJSONWebToken(userInfoDTO, _config);
 
-            return new UULResponse() { Success = true, Message = "User was created", Data = new UserInfoDTO(userToSave) };
+            return new UULResponse() { Success = true, Message = tokenString, Data = new UserInfoDTO(userToSave) };
         }
 
         [HttpGet("info")]
