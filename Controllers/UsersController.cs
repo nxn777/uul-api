@@ -133,26 +133,6 @@ namespace uul_api.Controllers {
             return response;
         }
 
-        [HttpPost("habitants/add")]
-        [Authorize]
-        public async Task<ActionResult<UULResponse>> AddHabitant(HabitantDTO habitantDTO) {
-            var currentUser = HttpContext.User;
-            UULResponse response;
-            try {
-                var userInfo = SecHelper.GetUserInfo(currentUser.Claims);
-                var user = await _context.Users.Where(u => u.Login.Equals(userInfo.Login) && u.ApartmentCode.Equals(userInfo.ApartmentCode)).FirstAsync();
-                var habitant = new Habitant(habitantDTO) { User = user };
-                _context.Habitants.Add(habitant);
-                await _context.SaveChangesAsync();
-                var habitants = await _context.Habitants.Where(h => h.User.ID == user.ID).Select(h => new HabitantDTO(h)).ToListAsync();
-                userInfo.IsActivated = user.IsActivated;
-                userInfo.Habitants = habitants;
-                response = new UULResponse() { Success = true, Message = "Habitant was added", Data = userInfo };
-            } catch (Exception e) {
-                response = new UULResponse() { Success = false, Message = e.Message, Data = null };
-            }
-            return response;
-        }
 
         private async Task<UserInfoDTO> AuthenticateUser(UserLoginInfoDTO loginInfoDTO) {
             var stored = await _context.Users.Where(u => u.Login.Equals(loginInfoDTO.Login) && u.ApartmentCode.Equals(loginInfoDTO.ApartmentCode)).FirstAsync();
