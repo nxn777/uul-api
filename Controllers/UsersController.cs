@@ -50,17 +50,20 @@ namespace uul_api.Controllers {
         }
 
         [HttpPost("delete")]
-        public async Task<IActionResult> DeleteUser(NewUserDTO user) {
-
-            /*
-                        var candidate = await _context.Users.Where(u => u.Name.Equals(user.Name) && u.Hash.Equals(user.Hash)).FirstAsync();
-                        if (candidate == null) {
-                            return BadRequest();
-                        }
-                        _context.Users.Remove(candidate);
-                        await _context.SaveChangesAsync();
-            */
-            return new OkResult();
+        [Authorize]
+        public async Task<ActionResult<UULResponse>> DeleteUser(UserLoginInfoDTO loginInfoDTO) {
+            var currentUser = HttpContext.User;
+            UULResponse response;
+            try {
+                var userInfoDTO = await AuthenticateUser(loginInfoDTO);
+                var user = await _context.Users.Where(u => u.Login.Equals(userInfoDTO.Login) && u.ApartmentCode.Equals(userInfoDTO.ApartmentCode)).FirstAsync(); 
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+                response = new UULResponse() { Success = true, Message = "Profile was deleted", Data = null };
+            } catch (Exception e) {
+                response = new UULResponse() { Success = false, Message = e.Message, Data = null };
+            }
+            return response;
         }
 
         [AllowAnonymous]
