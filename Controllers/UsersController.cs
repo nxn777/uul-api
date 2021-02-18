@@ -24,29 +24,27 @@ namespace uul_api.Controllers {
             _config = config;
         }
 
-        [HttpPut("update")]
-        public async Task<IActionResult> UpdateUser(UserUpdateDTO user) {
-
-            /*   var candidate = await _context.Users.Where(u => u.Name.Equals(user.Name) && u.Hash.Equals(user.Hash) && u.AppartmentID == user.AppartmentID).FirstAsync();
-               if (candidate == null) {
-                   return BadRequest();
-               }
-
-               candidate.Hash = user.NewHash;
-
-               _context.Entry(candidate).State = EntityState.Modified;
-
-               try {
-                   await _context.SaveChangesAsync();
-               } catch (DbUpdateConcurrencyException) {
-                   if (!UserExists(candidate.ID)) {
-                       return NotFound();
-                   } else {
-                       throw;
-                   }
-               }*/
-
-            return NoContent();
+        [HttpPost("changepwd")]
+        public async Task<ActionResult<UULResponse>> ChangePassword(UserUpdatePasswordDTO userPwdsDTO) {
+            if (!userPwdsDTO.isValid(out var msg)) {
+                return new UULResponse() { Success = false, Message = msg, Data = null };
+            }
+            UULResponse response;
+            try {
+                var userInfoDTO = await AuthenticateUser(userPwdsDTO.toLoginInfoDTO());
+                var user = await _context.Users.Where(u => u.Login.Equals(userInfoDTO.Login) && u.ApartmentCode.Equals(userInfoDTO.ApartmentCode)).FirstAsync();
+                var salt = SecHelper.CreateSalt();
+                user.Salt = salt;
+                user.Hash = SecHelper.SaltAndHashPwd(userPwdsDTO.NewPwd, salt);
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+                var tokenString = SecHelper.GenerateJSONWebToken(userInfoDTO.Login, userInfoDTO.ApartmentCode, _config);
+                var habitants = await _context.Habitants.Where(h => h.User.ID == user.ID).Select(h => new HabitantDTO(h)).ToListAsync();
+                response = new UULResponse() { Success = true, Message = tokenString, Data = new UserInfoDTO(user, habitants) };
+            } catch (Exception e) {
+                response = new UULResponse() { Success = false, Message = e.Message, Data = null };
+            }
+            return response;
         }
 
         [HttpPost("delete")]
@@ -72,7 +70,7 @@ namespace uul_api.Controllers {
             UULResponse response;
             try {
                 var userInfoDTO = await AuthenticateUser(loginInfoDTO);
-                var tokenString = SecHelper.GenerateJSONWebToken(userInfoDTO, _config);
+                var tokenString = SecHelper.GenerateJSONWebToken(userInfoDTO.Login, userInfoDTO.ApartmentCode, _config);
                 response = new UULResponse() { Success = true, Message = "Login success", Data = tokenString };
             } catch (Exception _) {
 
@@ -113,7 +111,7 @@ namespace uul_api.Controllers {
             await _context.SaveChangesAsync();
 
             var userInfoDTO = await AuthenticateUser(newUser.toLoginInfoDTO());
-            var tokenString = SecHelper.GenerateJSONWebToken(userInfoDTO, _config);
+            var tokenString = SecHelper.GenerateJSONWebToken(userInfoDTO.Login, userInfoDTO.ApartmentCode, _config);
 
             return new UULResponse() { Success = true, Message = tokenString, Data = new UserInfoDTO(userToSave) };
         }

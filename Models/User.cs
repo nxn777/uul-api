@@ -61,6 +61,13 @@ namespace uul_api.Models {
             this.IsActivated = user.IsActivated;
             this.Habitants = user.Habitants.Select(h => new HabitantDTO(h)).ToList();
         }
+
+        public UserInfoDTO(User user, IEnumerable<HabitantDTO> habitants) {
+            this.ApartmentCode = user.ApartmentCode;
+            this.Login = user.Login;
+            this.IsActivated = user.IsActivated;
+            this.Habitants = habitants;
+        }
     }
 
     public class UserLoginInfoDTO {
@@ -69,10 +76,23 @@ namespace uul_api.Models {
         public string Pwd { get; set; }
     }
 
-    public class UserUpdateDTO {
-        public long AppartmentID { get; set; }
-        public string Name { get; set; }
-        public string Hash { get; set; }
-        public string NewHash { get; set; }
+    public class UserUpdatePasswordDTO {
+        public string ApartmentCode { get; set; }
+        public string Login { get; set; }
+        public string NewPwd { get; set; }
+        public string OldPwd { get; set; }
+        public UserLoginInfoDTO toLoginInfoDTO() {
+            return new UserLoginInfoDTO() { ApartmentCode = this.ApartmentCode, Login = this.Login, Pwd = this.OldPwd };
+        }
+
+        public bool isValid(out string message) {
+     
+            if (NewPwd == null || NewPwd.Length < 5) {
+                message = "Password is too short";
+                return false;
+            }
+            message = "";
+            return true;
+        }
     }
 }

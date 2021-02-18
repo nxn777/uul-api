@@ -15,14 +15,14 @@ namespace uul_api.Security {
     public class SecHelper {
         private static readonly string ClaimLogin = "Login";
         private static readonly string ClaimApartmentCode = "ApartmentCode";
-        public static string GenerateJSONWebToken(UserInfoDTO userInfo, IConfiguration _config) {
+        public static string GenerateJSONWebToken(string login, string apartmentCode, IConfiguration _config) {
             var key = _config["Jwt:Key"];
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new[] {
-                new Claim(ClaimLogin, userInfo.Login),
-                new Claim(ClaimApartmentCode, userInfo.ApartmentCode)
+                new Claim(ClaimLogin, login),
+                new Claim(ClaimApartmentCode, apartmentCode)
             };
 
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],
