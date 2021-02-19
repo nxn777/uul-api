@@ -27,12 +27,12 @@ namespace uul_api.Models {
         public long ID { get; set; }
         public string Name { get; set; }
         public string AvatarSrc { get; set; }
-
-        public HabitantDTO() { }
+        public string ApartmentCode { get; set; }
         public HabitantDTO(Habitant habitant) {
             ID = habitant.ID;
             Name = habitant.Name;
             AvatarSrc = habitant.AvatarSrc;
+            ApartmentCode = habitant.User.ApartmentCode;
         }
     }
  }
