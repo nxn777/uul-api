@@ -9,22 +9,22 @@ namespace uul_api.Models {
         public long ID { get; set; }
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
-        public ICollection<User> OccupiedBy { get; set; }
+        public ICollection<Habitant> OccupiedBy { get; set; }
 
-        public TimeSlotInfoDTO ToDTO() {
-            return new TimeSlotInfoDTO {
+        public TimeSlotDTO ToDTO() {
+            return new TimeSlotDTO {
                 ID = this.ID,
                 Start = this.Start,
                 End = this.End,
-                OccupiedBy = {}
+                OccupiedBy = OccupiedBy.Select(e => new HabitantDTO(e)).ToList()
             };
         }
     }
 
-    public class TimeSlotInfoDTO {
+    public class TimeSlotDTO {
         public long ID { get; set; }
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
-        public ICollection<UserInfoDTO> OccupiedBy { get; set; }
+        public ICollection<HabitantDTO> OccupiedBy { get; set; }
     }
 }
