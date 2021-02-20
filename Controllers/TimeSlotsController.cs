@@ -62,11 +62,17 @@ namespace uul_api.Controllers {
         private async Task<ActionResult<UULResponse>> BookTimeSlotByGym(BookTimeSlotDTO dto, string gym) {
             UULResponse response;
             try {
-                var timeSlot = await _context.TimeSlots.Include(t => t.OccupiedBy).FirstOrDefaultAsync(t => t.ID == dto.TimeslotId) ?? throw new Exception("Timeslot not found");
+                var timeSlot = await _context.TimeSlots
+                    .Include(t => t.OccupiedBy)
+                    .Include(t => t.Gym)
+                    .FirstOrDefaultAsync(t => t.ID == dto.TimeslotId) ?? throw new Exception("Timeslot not found");
                 var rulesDto = await RulesDao.GetCurrentRulesDTO(_context);
 
                 DateOperations.GetTodayTimeSlotsBoundsUtc(rulesDto.TimeSlotSpan, out DateTime todayStart, out DateTime todayEnd);
 
+                if (!timeSlot.Gym.IsOpen) {
+                    throw new Exception("Gym " + timeSlot.Gym.Name + " is closed");
+                }
                 if (!(timeSlot.Start.IsWithinBounds(todayStart, todayEnd))) {
                     throw new Exception("Only current day is available");
                 }
