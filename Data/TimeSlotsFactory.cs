@@ -9,7 +9,8 @@ using uul_api.Operations;
 namespace uul_api.Data {
     public class TimeSlotsFactory {
      
-        public static async Task<List<TimeSlot>> CreateTodayTimeSlots(UULContext context, int hourToStart) {
+        public static Task<List<TimeSlot>> CreateTodayTimeSlots(UULContext context, int hourToStart) => CreateTimeSlotsForDateUTC(context, DateTime.Today.ToUniversalTime(), hourToStart);
+            /*
             var rules = await RulesDao.GetCurrentRulesDTO(context);
             DateOperations.GetTodayTimeSlotsBoundsUtc(rules, out DateTime start, out DateTime end);
             var existent = await TimeSlotsDao.GetTimeSlotsByUtcBounds(context, start, end);
@@ -30,11 +31,12 @@ namespace uul_api.Data {
                 slotStart += slotSpan;
             }
             return slots;
-        }
+            */
+        
 
         public static async Task<List<TimeSlot>> CreateTimeSlotsForDateUTC(UULContext context, DateTime dateUtc, int hourToStart) {
-            var rules = await RulesDao.GetCurrentRulesDTO(context);
-            DateOperations.GetTimeSlotsBoundsUtc(rules, dateUtc.Year, dateUtc.Month, dateUtc.Hour, out DateTime start, out DateTime end);
+            var rules = await RulesDao.GetCurrentRules(context);
+            DateOperations.GetTimeSlotsBoundsUtc(rules.TimeSlotSpan, dateUtc.Year, dateUtc.Month, dateUtc.Hour, out DateTime start, out DateTime end);
             var existent = await TimeSlotsDao.GetTimeSlotsByUtcBounds(context, start, end);
             if (existent.Count != 0) {
                 return new List<TimeSlot>();
@@ -44,11 +46,14 @@ namespace uul_api.Data {
             var slots = new List<TimeSlot>();
             var slotSpan = TimeSpan.FromMinutes(rules.TimeSlotSpan);
             while (slotStart.CompareTo(limit) < 0) {
-                var slot = new TimeSlot {
-                    Start = slotStart.ToUniversalTime(),
-                    End = (slotStart + slotSpan).ToUniversalTime()
-                };
-                slots.Add(slot);
+                foreach (Gym gym in rules.Gyms) {
+                    var slot = new TimeSlot {
+                        Start = slotStart.ToUniversalTime(),
+                        End = (slotStart + slotSpan).ToUniversalTime(),
+                        Gym = gym
+                    };
+                    slots.Add(slot);
+                }
                 slotStart += slotSpan;
             }
             return slots;

@@ -49,4 +49,20 @@ namespace uul_api.Models {
             Name = bannedApartment.Name;
         }
     }
+
+    public class Gym {
+        public long ID { get; set; }
+        public Rules Rules { get; set; }
+        public string Name { get; set; }
+        public bool IsOpen { get; set; }
+    }
+
+    public class GymDTO {
+        public string Name { get; set; }
+        public bool IsOpen { get; set; }
+        public GymDTO(Gym gym) {
+            Name = gym.Name;
+            IsOpen = gym.IsOpen;
+        }
+    }
 }

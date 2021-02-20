@@ -16,7 +16,7 @@ namespace uul_api.Models {
         public DbSet<SpecialFloor> SpecialFloors { get; set; }
         public DbSet<BannedApartment> BannedApartments { get; set; }
         public DbSet<Rules> Rules { get; set; }
-
+        public DbSet<Gym> Gyms { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Habitants)
@@ -33,6 +33,10 @@ namespace uul_api.Models {
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Rules>()
                 .HasMany(r => r.BannedApartments)
+                .WithOne(t => t.Rules)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Rules>()
+                .HasMany(r => r.Gyms)
                 .WithOne(t => t.Rules)
                 .OnDelete(DeleteBehavior.Cascade);
         }

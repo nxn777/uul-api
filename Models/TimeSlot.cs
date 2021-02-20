@@ -10,13 +10,15 @@ namespace uul_api.Models {
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
         public ICollection<Habitant> OccupiedBy { get; set; }
+        public Gym Gym { get; set; }
 
         public TimeSlotDTO ToDTO() {
-            return new TimeSlotDTO {
+            return new TimeSlotDTO() {
                 ID = this.ID,
                 Start = this.Start,
                 End = this.End,
-                OccupiedBy = OccupiedBy.Select(e => new HabitantDTO(e)).ToList()
+                OccupiedBy = OccupiedBy.Select(e => new HabitantDTO(e)).ToList(),
+                Gym = this.Gym.Name
             };
         }
     }
@@ -26,6 +28,7 @@ namespace uul_api.Models {
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
         public ICollection<HabitantDTO> OccupiedBy { get; set; }
+        public string Gym { get; set; }
     }
 
     public class BookTimeSlotDTO {

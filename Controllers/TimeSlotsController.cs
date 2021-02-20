@@ -20,16 +20,31 @@ namespace uul_api.Controllers {
             _context = context;
         }
 
-        // GET: api/TimeSlots/2020/12/15
+       
         [AllowAnonymous]
-        [HttpGet("{year}/{month}/{day}")]
-        public async Task<ActionResult<UULResponse>> GetTimeSlots(int year, int month, int day) { 
+        [HttpGet("{gym:alpha}/{year:int}/{month:int}/{day:int}")]
+        public async Task<ActionResult<UULResponse>> GetTimeSlotsByGym(string gym, int year, int month, int day) { 
             UULResponse response;
             try {
                 var rulesDto = await RulesDao.GetCurrentRulesDTO(_context);
-                DateOperations.GetTimeSlotsBoundsUtc(rulesDto, year, month, day, out DateTime start, out DateTime end);
+                DateOperations.GetTimeSlotsBoundsUtc(rulesDto.TimeSlotSpan, year, month, day, out DateTime start, out DateTime end);
+                var slots = await TimeSlotsDao.GetTimeSlotsByUtcBounds(_context, gym, start, end);
+                response = new UULResponse() { Success = true, Message = "gym:" + gym +"@"+year + "/" + month + "/" + day, Data = slots };
+            } catch (Exception e) {
+                response = new UULResponse() { Success = false, Message = e.Message, Data = null };
+            }
+            return response;
+        }
+
+        [AllowAnonymous]
+        [HttpGet("{year:int}/{month:int}/{day:int}")]
+        public async Task<ActionResult<UULResponse>> GetTimeSlots(int year, int month, int day) {
+            UULResponse response;
+            try {
+                var rulesDto = await RulesDao.GetCurrentRulesDTO(_context);
+                DateOperations.GetTimeSlotsBoundsUtc(rulesDto.TimeSlotSpan, year, month, day, out DateTime start, out DateTime end);
                 var slots = await TimeSlotsDao.GetTimeSlotsByUtcBounds(_context, start, end);
-                response = new UULResponse() { Success = false, Message = year + "/" + month + "/" + day, Data = slots };
+                response = new UULResponse() { Success = true, Message = year + "/" + month + "/" + day, Data = slots };
             } catch (Exception e) {
                 response = new UULResponse() { Success = false, Message = e.Message, Data = null };
             }
@@ -38,14 +53,20 @@ namespace uul_api.Controllers {
 
         [HttpPost("book")]
         [Authorize]
-        public async Task<ActionResult<UULResponse>> BookTimeSlot(BookTimeSlotDTO dto) {
+        public  Task<ActionResult<UULResponse>> BookTimeSlot(BookTimeSlotDTO dto) => BookTimeSlotByGym(dto, "");
+
+        [HttpPost("{gym:alpha}/book")]
+        [Authorize]
+        public Task<ActionResult<UULResponse>> BookTimeSlot(string gym, BookTimeSlotDTO dto) => BookTimeSlotByGym(dto, gym);
+
+        private async Task<ActionResult<UULResponse>> BookTimeSlotByGym(BookTimeSlotDTO dto, string gym) {
             UULResponse response;
             try {
                 var timeSlot = await _context.TimeSlots.Include(t => t.OccupiedBy).FirstOrDefaultAsync(t => t.ID == dto.TimeslotId) ?? throw new Exception("Timeslot not found");
                 var rulesDto = await RulesDao.GetCurrentRulesDTO(_context);
 
-                DateOperations.GetTodayTimeSlotsBoundsUtc(rulesDto, out DateTime todayStart, out DateTime todayEnd);
-              
+                DateOperations.GetTodayTimeSlotsBoundsUtc(rulesDto.TimeSlotSpan, out DateTime todayStart, out DateTime todayEnd);
+
                 if (!(timeSlot.Start.IsWithinBounds(todayStart, todayEnd))) {
                     throw new Exception("Only current day is available");
                 }
@@ -63,14 +84,14 @@ namespace uul_api.Controllers {
                 _context.Habitants.Update(habitant);
                 await _context.SaveChangesAsync();
 
-                var slots = await TimeSlotsDao.GetTimeSlotsByUtcBounds(_context, todayStart, todayEnd);
+                var slots = gym.Length == 0 ? await TimeSlotsDao.GetTimeSlotsByUtcBounds(_context, todayStart, todayEnd) : await TimeSlotsDao.GetTimeSlotsByUtcBounds(_context, gym, todayStart, todayEnd);
                 response = new UULResponse() { Success = true, Message = "Booked", Data = slots };
             } catch (Exception e) {
                 response = new UULResponse() { Success = false, Message = e.Message, Data = null };
             }
             return response;
         }
-            
+
         private  Task<bool> AlreadyBookedInBoundsUTC(long habitantId, DateTime dateStart, DateTime dateEnd) {          
             var alreadyBookedToday = _context.TimeSlots
                     .Where(ts => ts.Start.CompareTo(dateStart) >= 0 && ts.End.CompareTo(dateEnd) < 0)

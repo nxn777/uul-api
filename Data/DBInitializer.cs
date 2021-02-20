@@ -16,6 +16,7 @@ namespace uul_api.Data {
                 context.Towers.RemoveRange(context.Towers);
                 context.SpecialFloors.RemoveRange(context.SpecialFloors);
                 context.BannedApartments.RemoveRange(context.BannedApartments);
+                context.Gyms.RemoveRange(context.Gyms);
 
                 var towers = new List<Tower>() { 
                     new Tower() { Name = "A", FloorsCount = 10 }, 
@@ -31,8 +32,14 @@ namespace uul_api.Data {
                     new SpecialFloor() { Name = "D12", Alias = "PH" },
                 };
 
+                var gyms = new List<Gym>() {
+                    new Gym() { Name = "A", IsOpen = true},
+                    new Gym() { Name = "B", IsOpen = true}
+                };
+
                 context.Towers.AddRange(towers);
                 context.SpecialFloors.AddRange(specialFloors);
+                context.Gyms.AddRange(gyms);
 
                 var rules = new Rules() {
                     Version = 0,
@@ -42,7 +49,8 @@ namespace uul_api.Data {
                     TimeSlotSpan = DefaultTimeSlotSpan,
                     Towers = towers,
                     SpecialFloors = specialFloors,
-                    BannedApartments = { }
+                    BannedApartments = { },
+                    Gyms = gyms
                 };
 
                 context.Rules.Add(rules);
