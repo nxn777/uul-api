@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using uul_api.Data;
 using uul_api.Models;
 using uul_api.Security;
 
@@ -49,11 +50,10 @@ namespace uul_api.Controllers {
         [HttpPost("delete")]
         [Authorize]
         public async Task<ActionResult<UULResponse>> DeleteUser(UserLoginInfoDTO loginInfoDTO) {
-            var currentUser = HttpContext.User;
             UULResponse response;
             try {
                 var userInfoDTO = await AuthenticateUser(loginInfoDTO);
-                var user = await _context.Users.Where(u => u.Login.Equals(userInfoDTO.Login) && u.ApartmentCode.Equals(userInfoDTO.ApartmentCode)).FirstAsync(); 
+                var user = await UserDao.GetUserByDetails(_context, userInfoDTO.Login, userInfoDTO.ApartmentCode);
                 _context.Users.Remove(user);
                 await _context.SaveChangesAsync();
                 response = new UULResponse() { Success = true, Message = "Profile was deleted", Data = null };
@@ -71,8 +71,7 @@ namespace uul_api.Controllers {
                 var userInfoDTO = await AuthenticateUser(loginInfoDTO);
                 var tokenString = SecHelper.GenerateJSONWebToken(userInfoDTO.Login, userInfoDTO.ApartmentCode, _config);
                 response = new UULResponse() { Success = true, Message = "Login success", Data = tokenString };
-            } catch (Exception _) {
-
+            } catch {
                 response = new UULResponse() { Success = false, Message = "Login failed", Data = null };
             }
             return response;
@@ -90,29 +89,12 @@ namespace uul_api.Controllers {
                 return new UULResponse() { Success = false, Message = "User already exists", Data = null };
             }
 
-            var salt = SecHelper.CreateSalt();
-
-            var habitant = new Habitant(newUser);
-            _context.Habitants.Add(habitant);
-
-            var userToSave = new User {
-                Login = newUser.Login,
-                IsActivated = false,
-                CreatedAt = DateTime.UtcNow,
-                Hash = SecHelper.SaltAndHashPwd(newUser.Pwd, salt),
-                Salt = salt,
-                ApartmentCode = newUser.ApartmentCode,
-                Habitants = new List<Habitant>() { habitant }
-            };
-            _context.Users.Add(userToSave);
-
-            
+            var user = UserDao.AddFromDto(_context, newUser);
             await _context.SaveChangesAsync();
+            var userInfo = new UserInfoDTO(user);
+            var tokenString = SecHelper.GenerateJSONWebToken(userInfo.Login, userInfo.ApartmentCode, _config);
 
-            var userInfoDTO = await AuthenticateUser(newUser.toLoginInfoDTO());
-            var tokenString = SecHelper.GenerateJSONWebToken(userInfoDTO.Login, userInfoDTO.ApartmentCode, _config);
-
-            return new UULResponse() { Success = true, Message = tokenString, Data = new UserInfoDTO(userToSave) };
+            return new UULResponse() { Success = true, Message = tokenString, Data = userInfo };
         }
 
         [HttpGet("info")]
@@ -135,7 +117,7 @@ namespace uul_api.Controllers {
 
 
         private async Task<UserInfoDTO> AuthenticateUser(UserLoginInfoDTO loginInfoDTO) {
-            var stored = await _context.Users.Where(u => u.Login.Equals(loginInfoDTO.Login) && u.ApartmentCode.Equals(loginInfoDTO.ApartmentCode)).FirstAsync();
+            var stored = await UserDao.GetUserByDetails(_context, loginInfoDTO.Login, loginInfoDTO.ApartmentCode);
             var saltedAndHashedPwd = SecHelper.SaltAndHashPwd(loginInfoDTO.Pwd, stored.Salt);
             if (saltedAndHashedPwd != stored.Hash) {
                 throw new ArgumentException("Wrong credentials");

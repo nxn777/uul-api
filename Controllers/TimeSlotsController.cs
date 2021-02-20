@@ -21,6 +21,7 @@ namespace uul_api.Controllers {
         }
 
         // GET: api/TimeSlots/2020/12/15
+        [AllowAnonymous]
         [HttpGet("{year}/{month}/{day}")]
         public async Task<ActionResult<UULResponse>> GetTimeSlots(int year, int month, int day) { 
             UULResponse response;

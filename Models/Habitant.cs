@@ -9,13 +9,14 @@ namespace uul_api.Models {
         public User User { get; set; }
         public string Name { get; set; }
         public string AvatarSrc { get; set; }
-        public DateTime LastGymVisit { get; set; }
+        public DateTime? LastGymVisit { get; set; }
         public ICollection<TimeSlot> TimeSlots { get; set; }
         public Habitant() { }
 
         public Habitant(NewUserDTO userInfo) {
             Name = userInfo.Name;
             AvatarSrc = userInfo.AvatarSrc;
+            LastGymVisit = null;
         }
 
         public Habitant(HabitantDTO habitantDTO) {
@@ -29,7 +30,7 @@ namespace uul_api.Models {
         public string Name { get; set; }
         public string AvatarSrc { get; set; }
         public string ApartmentCode { get; set; }
-        public DateTime LastGymVisit { get; set; }
+        public DateTime? LastGymVisit { get; set; }
         public HabitantDTO() { }
         public HabitantDTO(Habitant habitant) {
             ID = habitant.ID;

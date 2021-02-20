@@ -55,7 +55,7 @@ namespace uul_api.Services {
         private async void CreateTimeSlots(object state) {
             using var scope = _scopeFactory.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<UULContext>();
-            var newSlots = await DbHelper.CreateTodayTimeSlots(dbContext, TimeSpan.FromMinutes(60), 5);
+            var newSlots = await TimeSlotsFactory.CreateTodayTimeSlots(dbContext, 5);
             dbContext.TimeSlots.AddRange(newSlots);
             dbContext.SaveChanges();
         }

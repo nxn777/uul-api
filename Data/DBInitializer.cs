@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using uul_api.Data.Dummy;
 using uul_api.Models;
 
 namespace uul_api.Data {
@@ -54,11 +55,13 @@ namespace uul_api.Data {
             }
 
 
-            var newSlots = DbHelper.CreateTodayTimeSlots(context, TimeSpan.FromMinutes(DefaultTimeSlotSpan), 5);
+            var newSlots = TimeSlotsFactory.CreateTodayTimeSlots(context, 5);
             newSlots.Wait();
             context.TimeSlots.AddRange(newSlots.Result);
 
             context.SaveChanges();
+
+            DummyDataFactory.CreateDummyData(context);
         }
 
         
