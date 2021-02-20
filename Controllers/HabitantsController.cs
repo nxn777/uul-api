@@ -20,7 +20,7 @@ namespace uul_api.Controllers {
 
         [HttpPost("add")]
         [Authorize]
-        public async Task<ActionResult<UULResponse>> AddHabitant(HabitantDTO habitantDTO) {
+        public async Task<ActionResult<UULResponse>> AddHabitant(HabitantDTO habitantDTO) { // TODO check rules before adding
             var currentUser = HttpContext.User;
             UULResponse response;
             try {

@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using uul_api.Models;
-using uul_api.Models.Helpers;
 using uul_api.Security;
 
 namespace uul_api.Controllers {

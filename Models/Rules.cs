@@ -10,6 +10,7 @@ namespace uul_api.Models {
         public int PersonsPerTimeSlot { get; set; }
         public int HabitantsPerApartment { get; set; }
         public int DoorsPerFloor { get; set; }
+        public int TimeSlotSpan { get; set; }
         public ICollection<Tower> Towers { get; set; }
         public ICollection<SpecialFloor> SpecialFloors { get; set; }
         public ICollection<BannedApartment> BannedApartments { get; set; }
@@ -20,6 +21,7 @@ namespace uul_api.Models {
         public int PersonsPerTimeSlot { get; set; }
         public int HabitantsPerApartment { get; set; }
         public int DoorsPerFloor { get; set; }
+        public int TimeSlotSpan { get; set; }
         public ICollection<TowerDTO> Towers { get; set; }
         public ICollection<SpecialFloorDTO> SpecialFloors { get; set; }
         public ICollection<BannedApartmentDTO> BannedApartments { get; set; }

@@ -23,8 +23,8 @@ namespace uul_api.Data {
             var slots = new List<TimeSlot>();
             while (slotStart.CompareTo(limit) < 0) {
                 var slot = new TimeSlot {
-                    Start = slotStart,
-                    End = slotStart + slotSpan
+                    Start = slotStart.ToUniversalTime(),
+                    End = (slotStart + slotSpan).ToUniversalTime()
                 };
                 slots.Add(slot);
                 slotStart += slotSpan;

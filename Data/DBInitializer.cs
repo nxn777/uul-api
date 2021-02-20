@@ -6,6 +6,7 @@ using uul_api.Models;
 
 namespace uul_api.Data {
     public class DBInitializer {
+        private const int DefaultTimeSlotSpan = 60;
         public static void Initialize(UULContext context) {
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
@@ -37,6 +38,7 @@ namespace uul_api.Data {
                     PersonsPerTimeSlot = 4,
                     HabitantsPerApartment = 4,
                     DoorsPerFloor = 8,
+                    TimeSlotSpan = DefaultTimeSlotSpan,
                     Towers = towers,
                     SpecialFloors = specialFloors,
                     BannedApartments = { }
@@ -52,7 +54,7 @@ namespace uul_api.Data {
             }
 
 
-            var newSlots = DbHelper.CreateTodayTimeSlots(context, TimeSpan.FromMinutes(60), 5);
+            var newSlots = DbHelper.CreateTodayTimeSlots(context, TimeSpan.FromMinutes(DefaultTimeSlotSpan), 5);
             newSlots.Wait();
             context.TimeSlots.AddRange(newSlots.Result);
 
