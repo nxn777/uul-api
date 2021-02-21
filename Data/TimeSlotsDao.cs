@@ -7,11 +7,11 @@ using uul_api.Models;
 
 namespace uul_api.Data {
     public class TimeSlotsDao {
-        public static Task<List<TimeSlotDTO>> GetTimeSlotsByUtcBounds(UULContext context, string gymName, DateTime start, DateTime end) {
+        public static Task<List<TimeSlotDTO>> GetTimeSlotsByUtcBounds(UULContext context, int gymId, DateTime start, DateTime end) {
             return context.TimeSlots
                 .Where(ts => ts.Start.CompareTo(start) >= 0 && ts.End.CompareTo(end) < 0)
                 .Include(ts => ts.Gym)
-                .Where(ts => ts.Gym.Name.Equals(gymName))
+                .Where(ts => ts.Gym.ID == gymId)
                 .Include(slot => slot.OccupiedBy)
                 .ThenInclude(h => h.User)
                 .OrderBy(ts => ts.Start)

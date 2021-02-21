@@ -62,11 +62,11 @@ namespace uul_api.Data {
                 context.SaveChanges();
             }
 
-
+            /*
             var newSlots = TimeSlotsFactory.CreateTodayTimeSlots(context, 5);
             newSlots.Wait();
             context.TimeSlots.AddRange(newSlots.Result);
-
+            */
             context.SaveChanges();
 
             DummyDataFactory.CreateDummyData(context);

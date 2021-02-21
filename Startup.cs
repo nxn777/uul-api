@@ -16,6 +16,7 @@ using uul_api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace uul_api {
     public class Startup {
@@ -40,7 +41,7 @@ namespace uul_api {
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
                 };
             });
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc); ;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

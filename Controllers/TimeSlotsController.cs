@@ -22,14 +22,15 @@ namespace uul_api.Controllers {
 
        
         [AllowAnonymous]
-        [HttpGet("{gym:alpha}/{year:int}/{month:int}/{day:int}")]
-        public async Task<ActionResult<UULResponse>> GetTimeSlotsByGym(string gym, int year, int month, int day) { 
+        [HttpGet("{gymId:int}/{year:int}/{month:int}/{day:int}")]
+        public async Task<ActionResult<UULResponse>> GetTimeSlotsByGym(int gymId, int year, int month, int day) { 
             UULResponse response;
             try {
                 var rulesDto = await RulesDao.GetCurrentRulesDTO(_context);
                 DateOperations.GetTimeSlotsBoundsUtc(rulesDto.TimeSlotSpan, year, month, day, out DateTime start, out DateTime end);
-                var slots = await TimeSlotsDao.GetTimeSlotsByUtcBounds(_context, gym, start, end);
-                response = new UULResponse() { Success = true, Message = "gym:" + gym +"@"+year + "/" + month + "/" + day, Data = slots };
+                var slots = await TimeSlotsDao.GetTimeSlotsByUtcBounds(_context, gymId, start, end);
+                var data = new ScheduleDTO() { Date = year + "/" + month + "/" + day, GymId = gymId, TimeSlots = slots };
+                response = new UULResponse() { Success = true, Message = "", Data =  data };
             } catch (Exception e) {
                 response = new UULResponse() { Success = false, Message = e.Message, Data = null };
             }
@@ -44,7 +45,8 @@ namespace uul_api.Controllers {
                 var rulesDto = await RulesDao.GetCurrentRulesDTO(_context);
                 DateOperations.GetTimeSlotsBoundsUtc(rulesDto.TimeSlotSpan, year, month, day, out DateTime start, out DateTime end);
                 var slots = await TimeSlotsDao.GetTimeSlotsByUtcBounds(_context, start, end);
-                response = new UULResponse() { Success = true, Message = year + "/" + month + "/" + day, Data = slots };
+                var data = new ScheduleDTO() { Date = year + "/" + month + "/" + day, GymId = null, TimeSlots = slots };
+                response = new UULResponse() { Success = true, Message = year + "/" + month + "/" + day, Data = data };
             } catch (Exception e) {
                 response = new UULResponse() { Success = false, Message = e.Message, Data = null };
             }
@@ -53,13 +55,13 @@ namespace uul_api.Controllers {
 
         [HttpPost("book")]
         [Authorize]
-        public  Task<ActionResult<UULResponse>> BookTimeSlot(BookTimeSlotDTO dto) => BookTimeSlotByGym(dto, "");
+        public  Task<ActionResult<UULResponse>> BookTimeSlot(BookTimeSlotDTO dto) => BookTimeSlotByGym(dto, -1);
 
-        [HttpPost("{gym:alpha}/book")]
+        [HttpPost("{gymId:int}/book")]
         [Authorize]
-        public Task<ActionResult<UULResponse>> BookTimeSlot(string gym, BookTimeSlotDTO dto) => BookTimeSlotByGym(dto, gym);
+        public Task<ActionResult<UULResponse>> BookTimeSlot(int gymId, BookTimeSlotDTO dto) => BookTimeSlotByGym(dto, gymId);
 
-        private async Task<ActionResult<UULResponse>> BookTimeSlotByGym(BookTimeSlotDTO dto, string gym) {
+        private async Task<ActionResult<UULResponse>> BookTimeSlotByGym(BookTimeSlotDTO dto, int gymId) {
             UULResponse response;
             try {
                 var timeSlot = await _context.TimeSlots
@@ -88,10 +90,11 @@ namespace uul_api.Controllers {
                 habitant.LastGymVisit = timeSlot.Start;
                 _context.TimeSlots.Update(timeSlot);
                 _context.Habitants.Update(habitant);
-                await _context.SaveChangesAsync();
+                var success = await _context.SaveChangesAsync() != 0;
 
-                var slots = gym.Length == 0 ? await TimeSlotsDao.GetTimeSlotsByUtcBounds(_context, todayStart, todayEnd) : await TimeSlotsDao.GetTimeSlotsByUtcBounds(_context, gym, todayStart, todayEnd);
-                response = new UULResponse() { Success = true, Message = "Booked", Data = slots };
+                var slots = gymId == -1 ? await TimeSlotsDao.GetTimeSlotsByUtcBounds(_context, todayStart, todayEnd) : await TimeSlotsDao.GetTimeSlotsByUtcBounds(_context, gymId, todayStart, todayEnd);
+                var data = new ScheduleDTO() { Date = todayStart.Year + "/" + todayStart.Month + "/" + todayStart.Day, GymId = gymId == -1 ? null : gymId, TimeSlots = slots };
+                response = new UULResponse() { Success = success, Message = "Booked", Data = data };
             } catch (Exception e) {
                 response = new UULResponse() { Success = false, Message = e.Message, Data = null };
             }

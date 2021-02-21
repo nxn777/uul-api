@@ -35,4 +35,10 @@ namespace uul_api.Models {
         public long TimeslotId { get; set; }
         public long HabitantId { get; set; }
     }
+
+    public class ScheduleDTO {
+        public string Date { get; set; }
+        public int? GymId { get; set; }
+        public ICollection<TimeSlotDTO> TimeSlots { get; set; }
+    }
 }

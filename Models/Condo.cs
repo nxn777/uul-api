@@ -58,9 +58,11 @@ namespace uul_api.Models {
     }
 
     public class GymDTO {
+        public long ID { get; set; }
         public string Name { get; set; }
         public bool IsOpen { get; set; }
         public GymDTO(Gym gym) {
+            ID = gym.ID;
             Name = gym.Name;
             IsOpen = gym.IsOpen;
         }
