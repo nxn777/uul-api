@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using uul_api.Data;
 using uul_api.Models;
 using uul_api.Operations;
+using uul_api.Security;
 
 namespace uul_api.Controllers {
     [Route("api/[controller]")]
@@ -63,7 +64,13 @@ namespace uul_api.Controllers {
 
         private async Task<ActionResult<UULResponse>> BookTimeSlotByGym(BookTimeSlotDTO dto, int gymId) {
             UULResponse response;
+            var currentUser = HttpContext.User;
             try {
+                var userInfo = SecHelper.GetUserInfo(currentUser.Claims);
+                var user = await _context.Users.Where(u => u.Login.Equals(userInfo.Login) && u.ApartmentCode.Equals(userInfo.ApartmentCode)).FirstAsync();
+                if (!user.IsActivated) {
+                    throw new Exception("User is not activated.\nPlease visit the administration.");
+                }
                 var timeSlot = await _context.TimeSlots
                     .Include(t => t.OccupiedBy)
                     .Include(t => t.Gym)
