@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using uul_api.Data.Dummy;
 using uul_api.Models;
+using uul_api.Security;
 
 namespace uul_api.Data {
     public class DBInitializer {
@@ -11,7 +12,9 @@ namespace uul_api.Data {
         public static void Initialize(UULContext context) {
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
-            
+            if (!context.Users.Any()) {
+                context.Users.Add(SecHelper.CreateDefaultAdmin());
+            }
             if (!context.Rules.Any()) {
                 context.Towers.RemoveRange(context.Towers);
                 context.SpecialFloors.RemoveRange(context.SpecialFloors);

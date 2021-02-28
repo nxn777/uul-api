@@ -3,7 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30709.132
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uul-api", "uul-api.csproj", "{81D6D825-8BDD-43FC-8D3D-6C4BDC2D5775}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "uul-api", "uul-api.csproj", "{81D6D825-8BDD-43FC-8D3D-6C4BDC2D5775}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "uul-web", "..\uul-web\uul-web.csproj", "{F3EED7DB-5764-42B5-8886-35EFE75EB4E3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{81D6D825-8BDD-43FC-8D3D-6C4BDC2D5775} = {81D6D825-8BDD-43FC-8D3D-6C4BDC2D5775}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +20,10 @@ Global
 		{81D6D825-8BDD-43FC-8D3D-6C4BDC2D5775}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81D6D825-8BDD-43FC-8D3D-6C4BDC2D5775}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{81D6D825-8BDD-43FC-8D3D-6C4BDC2D5775}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3EED7DB-5764-42B5-8886-35EFE75EB4E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3EED7DB-5764-42B5-8886-35EFE75EB4E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3EED7DB-5764-42B5-8886-35EFE75EB4E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3EED7DB-5764-42B5-8886-35EFE75EB4E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

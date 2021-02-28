@@ -115,7 +115,6 @@ namespace uul_api.Controllers {
             return response;
         }
 
-
         private async Task<UserInfoDTO> AuthenticateUser(UserLoginInfoDTO loginInfoDTO) {
             var stored = await UserDao.GetUserByDetails(_context, loginInfoDTO.Login, loginInfoDTO.ApartmentCode);
             var saltedAndHashedPwd = SecHelper.SaltAndHashPwd(loginInfoDTO.Pwd, stored.Salt);

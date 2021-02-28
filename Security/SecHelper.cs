@@ -13,6 +13,9 @@ using uul_api.Models;
 namespace uul_api.Security {
 
     public class SecHelper {
+        private static readonly string Admin = "mmd900";
+        private static readonly string AdminAppCode = "0000";
+
         private static readonly string ClaimLogin = "Login";
         private static readonly string ClaimApartmentCode = "ApartmentCode";
         public static string GenerateJSONWebToken(string login, string apartmentCode, IConfiguration _config) {
@@ -51,6 +54,22 @@ namespace uul_api.Security {
             var saltBytes = new byte[16];
             rng.GetBytes(saltBytes);
             return Convert.ToBase64String(saltBytes);
+        }
+
+        public static User CreateDefaultAdmin() {
+            var salt = CreateSalt();
+            return new User() {
+                ApartmentCode = AdminAppCode,
+                Login = Admin,
+                IsActivated = true,
+                CreatedAt = DateTime.UtcNow,
+                Hash = SaltAndHashPwd("00000", salt),
+                Salt = salt,
+            };
+        }
+
+        public static bool IsAdmin(User user) {
+            return user != null &&  user.ApartmentCode.Equals(AdminAppCode) && user.Login.Equals(Admin);
         }
     }
 

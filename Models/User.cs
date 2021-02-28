@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -72,7 +73,12 @@ namespace uul_api.Models {
 
     public class UserLoginInfoDTO {
         public string ApartmentCode { get; set; }
+        [Required]
+        [MinLength(5)]
         public string Login { get; set; }
+        [Required]
+        [MinLength(5)]
+        [DataType(DataType.Password)]
         public string Pwd { get; set; }
     }
 
@@ -93,6 +99,20 @@ namespace uul_api.Models {
             }
             message = "";
             return true;
+        }
+    }
+
+    public class UserWebInfoDTO {
+        public long ID { get; set; }
+        public string ApartmentCode { get; set; }
+        public string Login { get; set; }
+        public bool IsActivated { get; set; }
+        
+        public UserWebInfoDTO(User user) {
+            ID = user.ID;
+            ApartmentCode = user.ApartmentCode;
+            Login = user.Login;
+            IsActivated = user.IsActivated;
         }
     }
 }
