@@ -107,7 +107,8 @@ namespace uul_api.Models {
         public string ApartmentCode { get; set; }
         public string Login { get; set; }
         public bool IsActivated { get; set; }
-        
+
+        public UserWebInfoDTO() { }
         public UserWebInfoDTO(User user) {
             ID = user.ID;
             ApartmentCode = user.ApartmentCode;

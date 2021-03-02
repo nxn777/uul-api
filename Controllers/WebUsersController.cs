@@ -25,11 +25,33 @@ namespace uul_api.Controllers {
             var userInfo = SecHelper.GetUserInfo(HttpContext.User.Claims);
             try {
                 var user = await _context.Users.Where(u => u.Login.Equals(userInfo.Login) && u.ApartmentCode.Equals(userInfo.ApartmentCode)).SingleOrDefaultAsync();
-                if (!SecHelper.IsAdmin(user)) {
+                if (!SecHelper.IsAdmin(user)) { // TODO move to claims
                     throw new Exception("Not admin");
                 }
                 var userDTOs = await _context.Users.Where(u => !u.Login.Equals(userInfo.Login) && !u.ApartmentCode.Equals(userInfo.ApartmentCode)).OrderBy(u => u.ApartmentCode).Select(u => new UserWebInfoDTO(u)).ToListAsync();
                 return new OkObjectResult(userDTOs);
+            } catch {
+                return new ForbidResult();
+            }
+        }
+
+        [HttpPost("update")]
+        [Authorize]
+        public async Task<ActionResult<ICollection<UserWebInfoDTO>>> UpdateUser(UserWebInfoDTO userWebInfoDTO) {
+            var userInfo = SecHelper.GetUserInfo(HttpContext.User.Claims);
+            try {
+                var user = await _context.Users.Where(u => u.Login.Equals(userInfo.Login) && u.ApartmentCode.Equals(userInfo.ApartmentCode)).SingleOrDefaultAsync();
+                if (!SecHelper.IsAdmin(user)) { // TODO move to claims
+                    throw new Exception("Not admin");
+                }
+                var userToUpdate = await _context.Users.FindAsync(userWebInfoDTO.ID);
+                if (userToUpdate == null) {
+                    return new NotFoundResult();
+                }
+                userToUpdate.IsActivated = userWebInfoDTO.IsActivated; // currently only this
+                _context.Users.Update(userToUpdate);
+                await _context.SaveChangesAsync();
+                return new OkObjectResult(userWebInfoDTO);
             } catch {
                 return new ForbidResult();
             }
