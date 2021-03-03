@@ -104,7 +104,10 @@ namespace uul_api.Controllers {
             UULResponse response;
             try {
                 var userInfo = SecHelper.GetUserInfo(currentUser.Claims);
-                var user = await _context.Users.Where(u => u.Login.Equals(userInfo.Login) && u.ApartmentCode.Equals(userInfo.ApartmentCode)).FirstAsync();
+                var user = await _context.Users.Where(u => u.Login.Equals(userInfo.Login) && u.ApartmentCode.Equals(userInfo.ApartmentCode)).SingleOrDefaultAsync();
+                if (user == null) {
+                    throw new Exception("User not found");
+                }
                 var habitants = await _context.Habitants.Where(h => h.User.ID == user.ID).Select(h => new HabitantDTO(h)).ToListAsync();
                 userInfo.IsActivated = user.IsActivated;
                 userInfo.Habitants = habitants;

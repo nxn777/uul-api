@@ -14,7 +14,7 @@ namespace uul_api.Data.Dummy {
                 UserDao.AddFromDto(context, user);
             }
             context.SaveChanges();
-            List<TimeSlot> timeSlots = new List<TimeSlot>();
+            List<TimeSlot> timeSlots = new();
             var today = DateTime.UtcNow;
 
             for (int i = 0; i < 3; i++) {
@@ -32,8 +32,27 @@ namespace uul_api.Data.Dummy {
                 }
             }
             context.TimeSlots.AddRange(timeSlots);
+
+            var newsList = new List<News>();
+            for (int i = 0; i < 5; i ++) {
+                newsList.Add(new News() { Title = "Title " + i, Content = " Content " + i + dummyContent, Author = "Dummy data generator", CreatedAt = DateTime.UtcNow, Auditory = Auditory.GUESTS });
+            }
+            newsList.Add(new News() { Title = "Title Registered", Content = " Content Registered", Author = "Dummy data generator", CreatedAt = DateTime.UtcNow, Auditory = Auditory.REGISTERED });
+            newsList.Add(new News() { Title = "Title Activated", Content = " Content Activated", Author = "Dummy data generator", CreatedAt = DateTime.UtcNow, Auditory = Auditory.ACTIVATED });
+            context.News.AddRange(newsList);
             context.SaveChanges();
 
         }
+
+        private static string dummyContent = @"'
+Call us 3325937557 +523325937557
+https://google.com
+uul-web.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\5.0.3\System.Web.HttpUtility.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+System.Net.Http.HttpClient.UsersClient.LogicalHandler: Information: Start processing HTTP request POST https://192.168.100.8:5001/api/webusers/update
+System.Net.Http.HttpClient.UsersClient.ClientHandler: Information: Sending HTTP request POST https://192.168.100.8:5001/api/webusers/update
+System.Net.Http.HttpClient.UsersClient.ClientHandler: Information: Received HTTP response headers after 17.2348ms - 200
+System.Net.Http.HttpClient.UsersClient.LogicalHandler: Information: End processing HTTP request after 20.7377ms - 200
+System.Net.Http.HttpClient.UsersClient.LogicalHandler: Information: Start processing HTTP request GET https://192.168.100.8:5001/api/webusers/list
+System.Net.Http.HttpClient.UsersClient.ClientHandler: Information: Sending HTTP request GET https://192.168.100.8:5001/api/webusers/list";
     }
 }
