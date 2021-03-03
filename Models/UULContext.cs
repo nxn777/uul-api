@@ -17,6 +17,7 @@ namespace uul_api.Models {
         public DbSet<BannedApartment> BannedApartments { get; set; }
         public DbSet<Rules> Rules { get; set; }
         public DbSet<Gym> Gyms { get; set; }
+        public DbSet<News> News { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Habitants)
