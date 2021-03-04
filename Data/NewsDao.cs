@@ -9,7 +9,7 @@ namespace uul_api.Data {
     public static class NewsDao {
 
         public static async Task<ICollection<News>> GetNewsAsync(UULContext context, Auditory auditory) {
-            return await context.News.Where(n => (int)n.Auditory <= (int) auditory).ToListAsync();
+            return await context.News.Where(n => (int)n.Auditory <= (int) auditory).OrderByDescending(n => n.UpdatedAt).ThenByDescending(n => n.CreatedAt).ToListAsync();
         }
 
     }
