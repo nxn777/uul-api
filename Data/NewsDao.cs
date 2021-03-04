@@ -12,5 +12,8 @@ namespace uul_api.Data {
             return await context.News.Where(n => (int)n.Auditory <= (int) auditory).OrderByDescending(n => n.UpdatedAt).ThenByDescending(n => n.CreatedAt).ToListAsync();
         }
 
+        public static async Task<News> GetNewsByIdAsync(UULContext context, Auditory auditory, long Id) {
+            return await context.News.Where(n => (int)n.Auditory <= (int)auditory && n.ID == Id).SingleOrDefaultAsync();
+        }
     }
 }

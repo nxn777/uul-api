@@ -37,6 +37,23 @@ namespace uul_api.Controllers {
             return response;
         }
 
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<UULResponse>> GetNews(int id) {
+            UULResponse response;
+            var currentUser = HttpContext.User;
+            try {
+                var auditory = Auditory.GUESTS;
+                if (currentUser.Identity.IsAuthenticated) {
+                    auditory = (await UserDao.GetUserFromClaimsOrThrow(_context, currentUser)).IsActivated ? Auditory.ACTIVATED : Auditory.REGISTERED;
+                }
+                var newsDTO = await NewsDao.GetNewsByIdAsync(_context, auditory, id);
+                response = new UULResponse() { Success = true, Message = "News item", Data = new NewsWebDTO(newsDTO) };
+            } catch (Exception e) {
+                response = new UULResponse() { Success = false, Message = e.Message, Data = null };
+            }
+            return response;
+        }
+
         [HttpPost("news")]
         [Authorize]
         public async Task<ActionResult<UULResponse>> CreateOrUpdateNews(NewsWebDTO dto) {
