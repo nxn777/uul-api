@@ -21,6 +21,7 @@ namespace uul_api.Controllers {
         }
 
         [HttpGet("list")]
+        [Authorize]
         public async Task<ActionResult<UULResponse>> GetNews() {
             UULResponse response;
             var currentUser = HttpContext.User;
@@ -38,6 +39,7 @@ namespace uul_api.Controllers {
         }
 
         [HttpGet("{id:int}")]
+        [Authorize]
         public async Task<ActionResult<UULResponse>> GetNews(int id) {
             UULResponse response;
             var currentUser = HttpContext.User;
@@ -54,6 +56,26 @@ namespace uul_api.Controllers {
             return response;
         }
 
+        [HttpDelete("{id:long}")]
+        [Authorize]
+        public async Task<ActionResult<UULResponse>> DeleteNews(long id) {
+            UULResponse response;
+            var currentUser = HttpContext.User;
+            try {
+                var user = await UserDao.GetUserFromClaimsOrThrow(_context, HttpContext.User);
+                if (!SecHelper.IsAdmin(user)) {
+                    throw new Exception("Access denied");
+                }
+                var news = await _context.News.FindAsync(id);
+                _context.News.Remove(news);
+                await _context.SaveChangesAsync();
+                response = new UULResponse() { Success = true, Message = "News item was deleted", Data = null };
+            } catch (Exception e) {
+                response = new UULResponse() { Success = false, Message = e.Message, Data = null };
+            }
+            return response;
+        }
+
         [HttpPost("news")]
         [Authorize]
         public async Task<ActionResult<UULResponse>> CreateOrUpdateNews(NewsWebDTO dto) {
@@ -64,6 +86,12 @@ namespace uul_api.Controllers {
                     throw new Exception("Access denied");
                 }
                 var news = new News(dto);
+                var now = DateTime.UtcNow;
+                if (news.ID == null) {
+                    news.CreatedAt = now;
+                } else {
+                    news.UpdatedAt = now;
+                }
                 string message = "News was created";
                 if (news.ID == null) {
                     _context.News.Add(news);
