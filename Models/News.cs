@@ -47,6 +47,9 @@ namespace uul_api.Models {
         }
     }
 
+    public class NewsPaperDTO {
+        public ICollection<NewsDTO> News { get; set; }
+    }
     public class NewsWebDTO {
        
         public long? ID { get; set; }
