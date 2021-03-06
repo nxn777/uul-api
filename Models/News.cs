@@ -10,12 +10,17 @@ namespace uul_api.Models {
         GUESTS, REGISTERED, ACTIVATED
     }
 
+    public enum NewsType {
+        INFO, ALERT, CALL_TO_ACTION, POLL, REMINDER
+    }
+
     public class News {
         public long? ID { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
         public string Author { get; set; }
         public Auditory Auditory { get; set; }
+        public NewsType NewsType { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public News() { }
@@ -27,6 +32,7 @@ namespace uul_api.Models {
             CreatedAt = news.CreatedAt;
             UpdatedAt = news.UpdatedAt;
             Auditory = news.Auditory;
+            NewsType = news.NewsType;
         }
     }
 
@@ -34,6 +40,7 @@ namespace uul_api.Models {
         public string Title { get; set; }
         public string Content { get; set; }
         public string Author { get; set; }
+        public NewsType NewsType { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public DateTime LastModifiedAt { get; set; }
@@ -43,6 +50,7 @@ namespace uul_api.Models {
             Author = news.Author;
             CreatedAt = news.CreatedAt;
             UpdatedAt = news.UpdatedAt;
+            NewsType = news.NewsType;
             LastModifiedAt = news.CreatedAt.CompareTo(news.UpdatedAt) > 0 ? news.CreatedAt : news.UpdatedAt;
         }
     }
@@ -61,6 +69,7 @@ namespace uul_api.Models {
         [MinLength(3)]
         public string Author { get; set; }
         public Auditory Auditory { get; set; }
+        public NewsType NewsType { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public DateTime LastModifiedAt { get; set; }
@@ -73,6 +82,7 @@ namespace uul_api.Models {
             CreatedAt = news.CreatedAt;
             UpdatedAt = news.UpdatedAt;
             Auditory = news.Auditory;
+            NewsType = news.NewsType;
             LastModifiedAt = news.CreatedAt.CompareTo(news.UpdatedAt) > 0 ? news.CreatedAt : news.UpdatedAt;
         }
     }

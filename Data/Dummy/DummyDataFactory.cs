@@ -35,10 +35,10 @@ namespace uul_api.Data.Dummy {
 
             var newsList = new List<News>();
             for (int i = 0; i < 5; i ++) {
-                newsList.Add(new News() { Title = "Title " + i, Content = " Content " + i + dummyContent, Author = "Dummy data generator", CreatedAt = DateTime.UtcNow, Auditory = Auditory.GUESTS });
+                newsList.Add(new News() { Title = "Title " + i, Content = " Content " + i + dummyContent, Author = "Dummy data generator", CreatedAt = DateTime.UtcNow, Auditory = Auditory.GUESTS, NewsType = NewsType.INFO });
             }
-            newsList.Add(new News() { Title = "Title Registered", Content = " Content Registered", Author = "Dummy data generator", CreatedAt = DateTime.UtcNow, Auditory = Auditory.REGISTERED });
-            newsList.Add(new News() { Title = "Title Activated", Content = " Content Activated", Author = "Dummy data generator", CreatedAt = DateTime.UtcNow, Auditory = Auditory.ACTIVATED });
+            newsList.Add(new News() { Title = "Title Registered", Content = " Content Registered", Author = "Dummy data generator", CreatedAt = DateTime.UtcNow, Auditory = Auditory.REGISTERED, NewsType = NewsType.CALL_TO_ACTION });
+            newsList.Add(new News() { Title = "Title Activated", Content = " Content Activated", Author = "Dummy data generator", CreatedAt = DateTime.UtcNow, Auditory = Auditory.ACTIVATED, NewsType = NewsType.ALERT });
             context.News.AddRange(newsList);
             context.SaveChanges();
 
