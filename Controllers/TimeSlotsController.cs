@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using uul_api.Data;
 using uul_api.Models;
 using uul_api.Operations;
@@ -16,9 +17,10 @@ namespace uul_api.Controllers {
     [ApiController]
     public class TimeSlotsController : ControllerBase {
         private readonly UULContext _context;
-
-        public TimeSlotsController(UULContext context) {
+        private readonly ILogger<TimeSlotsController> _logger;
+        public TimeSlotsController(UULContext context, ILogger<TimeSlotsController> logger) {
             _context = context;
+            _logger = logger;
         }
 
        
@@ -27,13 +29,16 @@ namespace uul_api.Controllers {
         public async Task<ActionResult<UULResponse>> GetTimeSlotsByGym(int gymId, int year, int month, int day) { 
             UULResponse response;
             try {
-                var rulesDto = await RulesDao.GetCurrentRulesDTO(_context);
+                var rulesDto = await RulesDao.GetCurrentRulesDTOOrDefault(_context);
+                if (rulesDto == null) {
+                    return Error.RulesNotFound.CreateErrorResponse(_logger, "GetTimeSlotsByGym");
+                }
                 DateOperations.GetTimeSlotsBoundsUtc(rulesDto.TimeSlotSpan, year, month, day, out DateTime start, out DateTime end);
                 var slots = await TimeSlotsDao.GetTimeSlotsByUtcBounds(_context, gymId, start, end);
                 var data = new ScheduleDTO() { Date = year + "/" + month + "/" + day, GymId = gymId, TimeSlots = slots };
                 response = new UULResponse() { Success = true, Message = "", Data =  data };
             } catch (Exception e) {
-                response = new UULResponse() { Success = false, Message = e.Message, Data = null };
+                response = Error.EntityRetrievingFailed.CreateErrorResponse(_logger, "GetTimeSlotsByGym", e);
             }
             return response;
         }
@@ -43,13 +48,16 @@ namespace uul_api.Controllers {
         public async Task<ActionResult<UULResponse>> GetTimeSlots(int year, int month, int day) {
             UULResponse response;
             try {
-                var rulesDto = await RulesDao.GetCurrentRulesDTO(_context);
+                var rulesDto = await RulesDao.GetCurrentRulesDTOOrDefault(_context);
+                if (rulesDto == null) {
+                    return Error.RulesNotFound.CreateErrorResponse(_logger, "GetTimeSlots");
+                }
                 DateOperations.GetTimeSlotsBoundsUtc(rulesDto.TimeSlotSpan, year, month, day, out DateTime start, out DateTime end);
                 var slots = await TimeSlotsDao.GetTimeSlotsByUtcBounds(_context, start, end);
                 var data = new ScheduleDTO() { Date = year + "/" + month + "/" + day, GymId = null, TimeSlots = slots };
                 response = new UULResponse() { Success = true, Message = year + "/" + month + "/" + day, Data = data };
             } catch (Exception e) {
-                response = new UULResponse() { Success = false, Message = e.Message, Data = null };
+                response = Error.EntityRetrievingFailed.CreateErrorResponse(_logger, "GetTimeSlots", e);
             }
             return response;
         }
@@ -67,32 +75,43 @@ namespace uul_api.Controllers {
             var currentUser = HttpContext.User;
             try {
                 var userInfo = SecHelper.GetUserInfo(currentUser.Claims);
-                var user = await _context.Users.Where(u => u.Login.Equals(userInfo.Login) && u.ApartmentCode.Equals(userInfo.ApartmentCode)).FirstAsync();
+                var user = await _context.Users.Where(u => u.Login.Equals(userInfo.Login) && u.ApartmentCode.Equals(userInfo.ApartmentCode)).SingleOrDefaultAsync();
+                if (user is null) {
+                    return Error.ProfileLookupFailed.CreateErrorResponse(_logger, "BookTimeSlotsByGym");
+                }
                 if (!user.IsActivated) {
-                    throw new Exception("User is not activated.\nPlease visit the administration.");
+                    return Error.ProfileNotActivated.CreateErrorResponse(_logger, "BookTimesSlotsByGym");
                 }
                 var timeSlot = await _context.TimeSlots
                     .Include(t => t.OccupiedBy)
                     .Include(t => t.Gym)
-                    .FirstOrDefaultAsync(t => t.ID == dto.TimeslotId) ?? throw new Exception("Timeslot not found");
-                var rulesDto = await RulesDao.GetCurrentRulesDTO(_context);
-
+                    .FirstOrDefaultAsync(t => t.ID == dto.TimeslotId);
+                if (timeSlot is null) {
+                    return Error.TimeSlotNotFound.CreateErrorResponse(_logger, "BookTimesSlotsByGym");
+                }
+                var rulesDto = await RulesDao.GetCurrentRulesDTOOrDefault(_context);
+                if (rulesDto is null) {
+                    return Error.RulesNotFound.CreateErrorResponse(_logger, "BookTimesSlotsByGym");
+                }
                 DateOperations.GetTodayTimeSlotsBoundsUtc(rulesDto.TimeSlotSpan, out DateTime todayStart, out DateTime todayEnd);
 
                 if (!timeSlot.Gym.IsOpen) {
-                    throw new Exception("Gym " + timeSlot.Gym.Name + " is closed");
+                    return Error.GymClosed.CreateErrorResponse(_logger, "BookTimesSlotsByGym");
                 }
                 if (!(timeSlot.Start.IsWithinBounds(todayStart, todayEnd))) {
-                    throw new Exception("Only current day is available");
+                    return Error.TimeSlotNotToday.CreateErrorResponse(_logger, "BookTimesSlotsByGym");
                 }
                 if (timeSlot.OccupiedBy.Count >= rulesDto.PersonsPerTimeSlot) {
-                    throw new Exception("The timeslot is full");
+                    return Error.TimeSlotFull.CreateErrorResponse(_logger, "BookTimesSlotsByGym");
                 }
                 if (await AlreadyBookedInBoundsUTC(dto.HabitantId, todayStart, todayEnd)) {
-                    throw new Exception("This inhabitant already booked a gym today");
+                    return Error.TimeSlotOverbooking.CreateErrorResponse(_logger, "BookTimesSlotsByGym");
                 }
 
-                Habitant habitant = await _context.Habitants.FindAsync(dto.HabitantId) ?? throw new Exception("Inhabitant not found");
+                Habitant habitant = await _context.Habitants.FindAsync(dto.HabitantId);
+                if (habitant is null) {
+                    return Error.ProfileHabitantLookupFailed.CreateErrorResponse(_logger, "BookTimesSlotsByGym");
+                }
                 timeSlot.OccupiedBy.Add(habitant);
                 habitant.LastGymVisit = timeSlot.Start;
                 _context.TimeSlots.Update(timeSlot);
@@ -103,7 +122,7 @@ namespace uul_api.Controllers {
                 var data = new ScheduleDTO() { Date = todayStart.Year + "/" + todayStart.Month + "/" + todayStart.Day, GymId = gymId == -1 ? null : gymId, TimeSlots = slots };
                 response = new UULResponse() { Success = success, Message = "Booked", Data = data };
             } catch (Exception e) {
-                response = new UULResponse() { Success = false, Message = e.Message, Data = null };
+                response = Error.EntitySavingFailed.CreateErrorResponse(_logger, "BookTimesSlotsByGym", e);
             }
             return response;
         }

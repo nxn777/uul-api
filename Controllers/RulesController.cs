@@ -26,11 +26,10 @@ namespace uul_api.Controllers
         public async Task<ActionResult<UULResponse>> GetRules() {
             UULResponse response;
             try {
-                var rulesDTO = await RulesDao.GetCurrentRulesDTO(_context);
+                var rulesDTO = await RulesDao.GetCurrentRulesDTOOrDefault(_context);
                 response = new UULResponse() { Success = true, Message = "Active Rules", Data = rulesDTO };
             } catch (Exception e) {
-                response = Error.EntityRetrievingFailed.createErrorResponse();
-                _logger.LogInformation("GetRules:" + e.Message);
+                response = Error.EntityRetrievingFailed.CreateErrorResponse(_logger, "GetRules", e);
             }
             return response;
         }

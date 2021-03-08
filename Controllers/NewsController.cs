@@ -29,15 +29,14 @@ namespace uul_api.Controllers {
                 if (currentUser.Identity.IsAuthenticated) {
                     var user = (await UserDao.GetUserFromClaimsOrDefault(_context, currentUser));
                     if (user == null) {
-                        return Error.ProfileLookupFailed.createErrorResponse();
+                        return Error.ProfileLookupFailed.CreateErrorResponse(_logger, "GetNews");
                     }
                     auditory = user.IsActivated ? Auditory.ACTIVATED : Auditory.REGISTERED;
                 }
                 var newsListDTO = await NewsDao.GetNewsAsync(_context, auditory);
                 response = new UULResponse() { Success = true, Message = "News list", Data = new NewsPaperDTO() { News = newsListDTO.Select(n => new NewsDTO(n)).ToList() } };
             } catch (Exception e) {
-                response = Error.EntityRetrievingFailed.createErrorResponse();
-                _logger.LogInformation("GetNews:" + e.Message);
+                response = Error.EntityRetrievingFailed.CreateErrorResponse(_logger, "GetNews", e);
             }
             return response;
         }

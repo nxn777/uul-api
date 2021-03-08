@@ -8,7 +8,7 @@ using uul_api.Models;
 namespace uul_api.Data {
     public class RulesDao {
         
-        public static async Task<RulesDTO> GetCurrentRulesDTO(UULContext _context) {
+        public static async Task<RulesDTO> GetCurrentRulesDTOOrDefault(UULContext _context) {
             var rules = await _context.Rules
                 .AsSplitQuery()
                 .Include(r => r.Towers)
@@ -16,12 +16,12 @@ namespace uul_api.Data {
                 .Include(r => r.BannedApartments)
                 .Include(r => r.Gyms)
                 .OrderByDescending(r => r.Version)
-                .FirstOrDefaultAsync() ?? throw new Exception("No rules found");
-          
+                .FirstOrDefaultAsync();
+            if (rules == null) { return null; }
             return new RulesDTO(rules);
         }
 
-        public static async Task<Rules> GetCurrentRules(UULContext _context) {
+        public static async Task<Rules> GetCurrentRulesOrDefault(UULContext _context) {
             var rules = await _context.Rules
                 .AsSplitQuery()
                 .Include(r => r.Towers)
@@ -29,8 +29,7 @@ namespace uul_api.Data {
                 .Include(r => r.BannedApartments)
                 .Include(r => r.Gyms)
                 .OrderByDescending(r => r.Version)
-                .FirstOrDefaultAsync() ?? throw new Exception("No rules found");
-
+                .FirstOrDefaultAsync();
             return rules;
         }
     }
