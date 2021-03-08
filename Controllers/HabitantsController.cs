@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,8 +15,10 @@ namespace uul_api.Controllers {
     [ApiController]
     public class HabitantsController : ControllerBase {
         private readonly UULContext _context;
-        public HabitantsController(UULContext context) {
+        private readonly ILogger<HabitantsController> _logger;
+        public HabitantsController(UULContext context, ILogger<HabitantsController> logger) {
             _context = context;
+            _logger = logger;
         }
 
         [HttpPost("add")]
@@ -38,6 +41,7 @@ namespace uul_api.Controllers {
                 response = new UULResponse() { Success = true, Message = "Habitant was added", Data = userInfo };
             } catch (Exception e) {
                 response = Error.EntitySavingFailed.createErrorResponse();
+                _logger.LogError("AddHabitant:" + e.Message);
             }
             return response;
         }
@@ -67,6 +71,7 @@ namespace uul_api.Controllers {
                 response = new UULResponse() { Success = true, Message = "Habitant was updated", Data = userInfo };
             } catch (Exception e) {
                 response = Error.EntitySavingFailed.createErrorResponse();
+                _logger.LogError("EditHabitant:" + e.Message);
             }
             return response;
         }
@@ -92,7 +97,8 @@ namespace uul_api.Controllers {
                 userInfo.Habitants = habitants;
                 response = new UULResponse() { Success = true, Message = "Habitant was deleted", Data = userInfo };
             } catch (Exception e) {
-                response = new UULResponse() { Success = false, Message = e.Message, Data = null };
+                response = Error.EntityDeletionFailed.createErrorResponse();
+                _logger.LogError("DeleteHabitant:" + e.Message);
             }
             return response;
         }

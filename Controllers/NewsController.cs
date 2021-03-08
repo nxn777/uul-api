@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,9 +14,10 @@ namespace uul_api.Controllers {
     [ApiController]
     public class NewsController : ControllerBase {
         private readonly UULContext _context;
-
-        public NewsController(UULContext context) {
+        private readonly ILogger<NewsController> _logger;
+        public NewsController(UULContext context, ILogger<NewsController> logger) {
             _context = context;
+            _logger = logger;
         }
 
         [HttpGet("list")]
@@ -25,12 +27,17 @@ namespace uul_api.Controllers {
             try {
                 var auditory = Auditory.GUESTS;
                 if (currentUser.Identity.IsAuthenticated) {
-                    auditory = (await UserDao.GetUserFromClaimsOrThrow(_context, currentUser)).IsActivated ? Auditory.ACTIVATED : Auditory.REGISTERED;
+                    var user = (await UserDao.GetUserFromClaimsOrDefault(_context, currentUser));
+                    if (user == null) {
+                        return Error.ProfileLookupFailed.createErrorResponse();
+                    }
+                    auditory = user.IsActivated ? Auditory.ACTIVATED : Auditory.REGISTERED;
                 }
                 var newsListDTO = await NewsDao.GetNewsAsync(_context, auditory);
                 response = new UULResponse() { Success = true, Message = "News list", Data = new NewsPaperDTO() { News = newsListDTO.Select(n => new NewsDTO(n)).ToList() } };
             } catch (Exception e) {
-                response = new UULResponse() { Success = false, Message = e.Message, Data = null };
+                response = Error.EntityRetrievingFailed.createErrorResponse();
+                _logger.LogInformation("GetNews:" + e.Message);
             }
             return response;
         }

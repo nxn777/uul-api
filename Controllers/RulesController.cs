@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using uul_api.Data;
 using uul_api.Models;
 
@@ -14,9 +15,10 @@ namespace uul_api.Controllers
     [ApiController]
     public class RulesController : ControllerBase {
         private readonly UULContext _context;
-
-        public RulesController(UULContext context) {
+        private readonly ILogger<RulesController> _logger;
+        public RulesController(UULContext context, ILogger<RulesController> logger) {
             _context = context;
+            _logger = logger;
         }
 
         // GET: api/Rules
@@ -27,7 +29,8 @@ namespace uul_api.Controllers
                 var rulesDTO = await RulesDao.GetCurrentRulesDTO(_context);
                 response = new UULResponse() { Success = true, Message = "Active Rules", Data = rulesDTO };
             } catch (Exception e) {
-                response = new UULResponse() { Success = false, Message = e.Message, Data = null };
+                response = Error.EntityRetrievingFailed.createErrorResponse();
+                _logger.LogInformation("GetRules:" + e.Message);
             }
             return response;
         }

@@ -8,6 +8,7 @@ namespace uul_api.Models {
         // Db 
         EntitySavingFailed = 601,
         EntityDeletionFailed = 602,
+        EntityRetrievingFailed = 603,
         // Profile errors
         ProfileLookupFailed = 1001,
         HabitantLookupFailed = 1002,
@@ -27,6 +28,8 @@ namespace uul_api.Models {
                     return "Can not delete the last inhabitant";
                 case Error.EntityDeletionFailed:
                     return "Failed to delete object(s) from the DB";
+                case Error.EntityRetrievingFailed:
+                    return "Failed to get object(s) from the DB";
             }
             return "No descriiption";
         }
