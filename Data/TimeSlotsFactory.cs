@@ -35,7 +35,7 @@ namespace uul_api.Data {
         
 
         public static async Task<List<TimeSlot>> CreateTimeSlotsForDateUTC(UULContext context, DateTime dateUtc, int hourToStart) {
-            var rules = await RulesDao.GetCurrentRules(context);
+            var rules = await RulesDao.GetCurrentRulesOrDefault(context);
             DateOperations.GetTimeSlotsBoundsUtc(rules.TimeSlotSpan, dateUtc.Year, dateUtc.Month, dateUtc.Hour, out DateTime start, out DateTime end);
             var existent = await TimeSlotsDao.GetTimeSlotsByUtcBounds(context, start, end);
             if (existent.Count != 0) {
