@@ -29,9 +29,8 @@ namespace uul_api.Data {
             return userToSave;
         }
 
-        public static async Task<User> GetUserByDetails(UULContext context, string login, string apartment) {
-            var user = await context.Users.Where(u => u.Login.Equals(login) && u.ApartmentCode.Equals(apartment)).FirstOrDefaultAsync();
-            return user ?? throw new Exception("Wrong credentials");
+        public static async Task<User> GetUserByDetailsOrThrow(UULContext context, string login, string apartment) {
+            return (await context.Users.Where(u => u.Login.Equals(login) && u.ApartmentCode.Equals(apartment)).SingleOrDefaultAsync()) ?? throw new UserProfileNotFoundException();
         }
 
         public static async Task<User> GetUserFromClaimsOrThrow(UULContext _context, ClaimsPrincipal currentUser) {

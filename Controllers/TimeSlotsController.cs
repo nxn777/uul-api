@@ -38,7 +38,7 @@ namespace uul_api.Controllers {
                 var data = new ScheduleDTO() { Date = year + "/" + month + "/" + day, GymId = gymId, TimeSlots = slots };
                 response = new UULResponse() { Success = true, Message = "", Data =  data };
             } catch (Exception e) {
-                response = Error.EntityRetrievingFailed.CreateErrorResponse(_logger, "GetTimeSlotsByGym", e);
+                response = Error.TimeSlotsGetFailed.CreateErrorResponse(_logger, "GetTimeSlotsByGym", e);
             }
             return response;
         }
@@ -57,7 +57,7 @@ namespace uul_api.Controllers {
                 var data = new ScheduleDTO() { Date = year + "/" + month + "/" + day, GymId = null, TimeSlots = slots };
                 response = new UULResponse() { Success = true, Message = year + "/" + month + "/" + day, Data = data };
             } catch (Exception e) {
-                response = Error.EntityRetrievingFailed.CreateErrorResponse(_logger, "GetTimeSlots", e);
+                response = Error.TimeSlotsGetFailed.CreateErrorResponse(_logger, "GetTimeSlots", e);
             }
             return response;
         }
@@ -71,13 +71,13 @@ namespace uul_api.Controllers {
         public Task<ActionResult<UULResponse>> BookTimeSlot(int gymId, BookTimeSlotDTO dto) => BookTimeSlotByGym(dto, gymId);
 
         private async Task<ActionResult<UULResponse>> BookTimeSlotByGym(BookTimeSlotDTO dto, int gymId) {
-            UULResponse response;
+            UULResponse response; // TODO refactor to use exceptions
             var currentUser = HttpContext.User;
             try {
                 var userInfo = SecHelper.GetUserInfo(currentUser.Claims);
                 var user = await _context.Users.Where(u => u.Login.Equals(userInfo.Login) && u.ApartmentCode.Equals(userInfo.ApartmentCode)).SingleOrDefaultAsync();
                 if (user is null) {
-                    return Error.ProfileLookupFailed.CreateErrorResponse(_logger, "BookTimeSlotsByGym");
+                    return Error.ProfileNotFound.CreateErrorResponse(_logger, "BookTimeSlotsByGym");
                 }
                 if (!user.IsActivated) {
                     return Error.ProfileNotActivated.CreateErrorResponse(_logger, "BookTimesSlotsByGym");
@@ -122,7 +122,7 @@ namespace uul_api.Controllers {
                 var data = new ScheduleDTO() { Date = todayStart.Year + "/" + todayStart.Month + "/" + todayStart.Day, GymId = gymId == -1 ? null : gymId, TimeSlots = slots };
                 response = new UULResponse() { Success = success, Message = "Booked", Data = data };
             } catch (Exception e) {
-                response = Error.EntitySavingFailed.CreateErrorResponse(_logger, "BookTimesSlotsByGym", e);
+                response = Error.TimeSlotsBookingFailed.CreateErrorResponse(_logger, "BookTimesSlotsByGym", e);
             }
             return response;
         }

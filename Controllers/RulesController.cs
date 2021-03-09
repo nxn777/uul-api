@@ -29,7 +29,7 @@ namespace uul_api.Controllers
                 var rulesDTO = await RulesDao.GetCurrentRulesDTOOrDefault(_context);
                 response = new UULResponse() { Success = true, Message = "Active Rules", Data = rulesDTO };
             } catch (Exception e) {
-                response = Error.EntityRetrievingFailed.CreateErrorResponse(_logger, "GetRules", e);
+                response = Error.RulesGetFailed.CreateErrorResponse(_logger, "GetRules", e);
             }
             return response;
         }

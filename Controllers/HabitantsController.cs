@@ -30,7 +30,7 @@ namespace uul_api.Controllers {
                 var userInfo = SecHelper.GetUserInfo(currentUser.Claims);
                 var user = await _context.Users.Where(u => u.Login.Equals(userInfo.Login) && u.ApartmentCode.Equals(userInfo.ApartmentCode)).SingleOrDefaultAsync();
                 if (user == null) {
-                    return Error.ProfileLookupFailed.CreateErrorResponse(_logger, "AddHabitant");
+                    return Error.ProfileNotFound.CreateErrorResponse(_logger, "AddHabitant");
                 }
                 var habitant = new Habitant(habitantDTO) { User = user };
                 _context.Habitants.Add(habitant);
@@ -40,7 +40,7 @@ namespace uul_api.Controllers {
                 userInfo.Habitants = habitants;
                 response = new UULResponse() { Success = true, Message = "Habitant was added", Data = userInfo };
             } catch (Exception e) {
-                response = Error.EntitySavingFailed.CreateErrorResponse(_logger, "AddHabitant", e);
+                response = Error.ProfileAddHabitantFailed.CreateErrorResponse(_logger, "AddHabitant", e);
             }
             return response;
         }
@@ -54,7 +54,7 @@ namespace uul_api.Controllers {
                 var userInfo = SecHelper.GetUserInfo(currentUser.Claims);
                 var user = await _context.Users.Where(u => u.Login.Equals(userInfo.Login) && u.ApartmentCode.Equals(userInfo.ApartmentCode)).SingleOrDefaultAsync();
                 if (user == null) {
-                    return Error.ProfileLookupFailed.CreateErrorResponse(_logger, "EditHabitant");
+                    return Error.ProfileNotFound.CreateErrorResponse(_logger, "EditHabitant");
                 }
                 var habitant = await _context.Habitants.FindAsync(habitantDTO.ID);
                 if (habitant == null) {
@@ -69,7 +69,7 @@ namespace uul_api.Controllers {
                 userInfo.Habitants = habitants;
                 response = new UULResponse() { Success = true, Message = "Habitant was updated", Data = userInfo };
             } catch (Exception e) {
-                response = Error.EntitySavingFailed.CreateErrorResponse(_logger, "EditHabitant", e);
+                response = Error.ProfileEditHabitantFailed.CreateErrorResponse(_logger, "EditHabitant", e);
             }
             return response;
         }
@@ -95,7 +95,7 @@ namespace uul_api.Controllers {
                 userInfo.Habitants = habitants;
                 response = new UULResponse() { Success = true, Message = "Habitant was deleted", Data = userInfo };
             } catch (Exception e) {
-                response = Error.EntityDeletionFailed.CreateErrorResponse(_logger, "DeleteHabitant", e);
+                response = Error.ProfileDeleteHabitantFailed.CreateErrorResponse(_logger, "DeleteHabitant", e);
             }
             return response;
         }
