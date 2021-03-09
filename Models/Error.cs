@@ -8,10 +8,6 @@ namespace uul_api.Models {
     public enum Error {
         // Auth
         AuthFailed = 101,
-        // Db 
-        EntitySavingFailed = 601,
-        EntityDeletionFailed = 602,
-        EntityRetrievingFailed = 603,
         // Profile errors
         ProfileNotFound = 1001,
         ProfileHabitantLookupFailed = 1002,
@@ -48,16 +44,10 @@ namespace uul_api.Models {
             switch (error) {
                 case Error.ProfileNotFound:
                     return "Profile not found";
-                case Error.EntitySavingFailed:
-                    return "Failed to save objects to the DB";
                 case Error.ProfileHabitantLookupFailed:
                     return "Inhabitant not found";
                 case Error.ProfileLastHabitantDeletion:
                     return "Can not delete the last inhabitant";
-                case Error.EntityDeletionFailed:
-                    return "Failed to delete object(s) from the DB";
-                case Error.EntityRetrievingFailed:
-                    return "Failed to get object(s) from the DB";
                 case Error.RulesNotFound:
                     return "Rules not found";
                 case Error.ProfileNotActivated:
@@ -72,8 +62,38 @@ namespace uul_api.Models {
                     return "TimeSlot is full";
                 case Error.TimeSlotOverbooking:
                     return "This inhabitant already booked a gym today";
+                case Error.AuthFailed:
+                    return "Wrong credentials";
+                case Error.ProfileValidationFailed:
+                    return "Profile data is not valid";
+                case Error.ProfileChangePwdFailed:
+                    return "Failed to change password";
+                case Error.ProfileAddHabitantFailed:
+                    return "Failed to add the inhabitant";
+                case Error.ProfileEditHabitantFailed:
+                    return "Failed to edit the inhabitant";
+                case Error.ProfileDeleteHabitantFailed:
+                    return "Failed to delete the inhabitant";
+                case Error.ProfileDeletionFailed:
+                    return "Failed to delete the profile";
+                case Error.ProfileLoginFailed:
+                    return "Login failed";
+                case Error.ProfileAlreadyExists:
+                    return "Profile already exists";
+                case Error.ProfileCreationFailed:
+                    return "Profile creation failed";
+                case Error.ProfileGetInfoFailed:
+                    return "Profile info retrieval failed";
+                case Error.RulesGetFailed:
+                    return "Rules retrieval failed";
+                case Error.TimeSlotsBookingFailed:
+                    return "Timeslot booking failed";
+                case Error.TimeSlotsGetFailed:
+                    return "Timeslots retrieval failed";
+                case Error.NewsGetFailed:
+                    return "News retrieval failed";
             }
-            return "No descriiption";
+            return "No description";
         }
 
         public static UULResponse CreateErrorResponse(this Error error, ILogger<object> logger, string tag, Exception ex = null) {
