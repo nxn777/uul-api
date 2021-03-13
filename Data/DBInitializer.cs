@@ -64,7 +64,7 @@ namespace uul_api.Data {
             }
             if (config.GetValue<bool>("CreateDummyDataOnStart") == false) {
                 if (!context.TimeSlots.Any()) {
-                    var newSlots = TimeSlotsFactory.CreateTodayTimeSlots(context, 5);
+                    var newSlots = TimeSlotsFactory.CreateTodayTimeSlots(context, 11); // 11 Utc is 5 am at Gdl
                     newSlots.Wait();
                     context.TimeSlots.AddRange(newSlots.Result);
                 }

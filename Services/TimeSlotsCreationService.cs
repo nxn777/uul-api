@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using uul_api.Models;
 using uul_api.Data;
 using Microsoft.Extensions.DependencyInjection;
+using uul_api.Operations;
 
 namespace uul_api.Services {
     public class TimeSlotsCreationService : IHostedService {
@@ -22,8 +23,8 @@ namespace uul_api.Services {
 			TimeSpan interval = TimeSpan.FromHours(24);
 			//calculate time to run the first time & delay to set the timer
 			//DateTime.Today gives time of midnight 00.00
-			var nextRunTime = DateTime.Today.AddDays(1).AddHours(1);
-			var curTime = DateTime.Now;
+			var nextRunTime = DateOperations.Today().AddDays(1).AddHours(1);
+			var curTime = DateTime.UtcNow;
 			var firstInterval = nextRunTime.Subtract(curTime);
 
             void action() {
