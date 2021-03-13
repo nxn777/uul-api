@@ -63,7 +63,7 @@ namespace uul_api.Security {
                 Login = Admin,
                 IsActivated = true,
                 CreatedAt = DateTime.UtcNow,
-                Hash = SaltAndHashPwd("00000", salt),
+                Hash = SaltAndHashPwd("thecownamedlolasayshola", salt),
                 Salt = salt,
             };
         }
