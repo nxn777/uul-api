@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,8 +10,10 @@ using uul_api.Security;
 namespace uul_api.Data {
     public class DBInitializer {
         private const int DefaultTimeSlotSpan = 60;
-        public static void Initialize(UULContext context) {
-            context.Database.EnsureDeleted();
+        public static void Initialize(UULContext context, IConfiguration config) {
+            if (config.GetValue<bool>("DropDataOnStart") == true) {
+                context.Database.EnsureDeleted();
+            }
             context.Database.EnsureCreated();
             if (!context.Users.Any()) {
                 context.Users.Add(SecHelper.CreateDefaultAdmin());
@@ -59,20 +62,18 @@ namespace uul_api.Data {
                 context.Rules.Add(rules);
                 context.SaveChanges();
             }
-
-            if (context.TimeSlots.Any()) {
-                context.TimeSlots.RemoveRange(context.TimeSlots);
-                context.SaveChanges();
+            if (config.GetValue<bool>("CreateDummyDataOnStart") == false) {
+                if (!context.TimeSlots.Any()) {
+                    var newSlots = TimeSlotsFactory.CreateTodayTimeSlots(context, 5);
+                    newSlots.Wait();
+                    context.TimeSlots.AddRange(newSlots.Result);
+                }
+            } else {
+                DummyDataFactory.CreateDummyData(context);
             }
-
-            /*
-            var newSlots = TimeSlotsFactory.CreateTodayTimeSlots(context, 5);
-            newSlots.Wait();
-            context.TimeSlots.AddRange(newSlots.Result);
-            */
             context.SaveChanges();
 
-            DummyDataFactory.CreateDummyData(context);
+            
         }
 
         

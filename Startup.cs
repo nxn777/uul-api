@@ -28,12 +28,16 @@ namespace uul_api {
 
         public IConfiguration Configuration { get; }
         private IWebHostEnvironment _env;
-        // This method gets called by the runtime. Use this method to add services to the container.
+
         public void ConfigureServices(IServiceCollection services) {
             if (_env.IsDevelopment()) {
                 //ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
             }
-            services.AddDbContext<UULContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            string dbConnection = "DefaultConnection";
+            if (Configuration.GetValue<bool>("ForceUseDummyData") == true) {
+                dbConnection = "DummyConnection";
+            }
+            services.AddDbContext<UULContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString(dbConnection)));
             services.AddHostedService<TimeSlotsCreationService>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options => {
                 options.TokenValidationParameters = new TokenValidationParameters {

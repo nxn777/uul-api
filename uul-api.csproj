@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>uul_api</RootNamespace>
+    <UserSecretsId>c18e3af9-73ec-4b6f-8607-2b7bd9b1b9f6</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

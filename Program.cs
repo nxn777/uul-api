@@ -16,7 +16,7 @@ namespace uul_api {
         public static void Main(string[] args) {
             var host = CreateHostBuilder(args).Build();
 
-            CreateDbIfNotExists(host);
+            InitDb(host);
 
             host.Run();
         }
@@ -27,12 +27,13 @@ namespace uul_api {
                     webBuilder.UseStartup<Startup>();
                 });
 
-        private static void CreateDbIfNotExists(IHost host) {
+        private static void InitDb(IHost host) {
             using var scope = host.Services.CreateScope();
             var services = scope.ServiceProvider;
             try {
                 var context = services.GetRequiredService<UULContext>();
-                DBInitializer.Initialize(context);
+                var config = services.GetRequiredService<IConfiguration>();
+                DBInitializer.Initialize(context, config);
             } catch (Exception ex) {
                 var logger = services.GetRequiredService<ILogger<Program>>();
                 logger.LogError(ex, "An error occurred creating the DB.");

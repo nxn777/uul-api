@@ -40,8 +40,6 @@ namespace uul_api.Data.Dummy {
             newsList.Add(new News() { Title = "Title Registered", Content = " Content Registered", Author = "Dummy data generator", CreatedAt = DateTime.UtcNow, Auditory = Auditory.REGISTERED, NewsType = NewsType.CALL_TO_ACTION });
             newsList.Add(new News() { Title = "Title Activated", Content = " Content Activated", Author = "Dummy data generator", CreatedAt = DateTime.UtcNow, Auditory = Auditory.ACTIVATED, NewsType = NewsType.ALERT });
             context.News.AddRange(newsList);
-            context.SaveChanges();
-
         }
 
         private static string dummyContent = @"'
