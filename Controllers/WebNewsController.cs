@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using uul_api.Data;
 using uul_api.Models;
+using uul_api.Operations;
 using uul_api.Security;
 
 namespace uul_api.Controllers {
@@ -86,7 +87,7 @@ namespace uul_api.Controllers {
                     throw new Exception("Access denied");
                 }
                 var news = new News(dto);
-                var now = DateTime.UtcNow;
+                var now = DateOperations.Now();
                 if (news.ID == null) {
                     news.CreatedAt = now;
                 } else {

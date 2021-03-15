@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using uul_api.Models;
+using uul_api.Operations;
 using uul_api.Security;
 
 namespace uul_api.Data {
@@ -18,7 +19,7 @@ namespace uul_api.Data {
             var userToSave = new User {
                 Login = newUser.Login,
                 IsActivated = false,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateOperations.Now(),
                 Hash = SecHelper.SaltAndHashPwd(newUser.Pwd, salt),
                 Salt = salt,
                 ApartmentCode = newUser.ApartmentCode,

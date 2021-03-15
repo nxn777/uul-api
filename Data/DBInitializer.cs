@@ -63,11 +63,9 @@ namespace uul_api.Data {
                 context.SaveChanges();
             }
             if (config.GetValue<bool>("CreateDummyDataOnStart") == false) {
-                if (!context.TimeSlots.Any()) {
-                    var newSlots = TimeSlotsFactory.CreateTodayTimeSlots(context, 11); // 11 Utc is 5 am at Gdl
-                    newSlots.Wait();
-                    context.TimeSlots.AddRange(newSlots.Result);
-                }
+                var newSlots = TimeSlotsFactory.CreateTodayTimeSlots(context, 11); // 11 Utc is 5 am at Gdl
+                newSlots.Wait();
+                context.TimeSlots.AddRange(newSlots.Result);
             } else {
                 DummyDataFactory.CreateDummyData(context);
             }

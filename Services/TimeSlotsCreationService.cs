@@ -8,29 +8,33 @@ using uul_api.Models;
 using uul_api.Data;
 using Microsoft.Extensions.DependencyInjection;
 using uul_api.Operations;
+using Microsoft.Extensions.Logging;
 
 namespace uul_api.Services {
     public class TimeSlotsCreationService : IHostedService {
         private readonly IServiceScopeFactory _scopeFactory;
+        private readonly ILogger<TimeSlotsCreationService> _logger;
         private Timer _timer;
 
-        public TimeSlotsCreationService(IServiceScopeFactory scopeFactory) {
+        public TimeSlotsCreationService(IServiceScopeFactory scopeFactory, ILogger<TimeSlotsCreationService> logger) {
             _scopeFactory = scopeFactory;
+            _logger = logger;
         }
 
         Task IHostedService.StartAsync(CancellationToken cancellationToken) {
-			// timer repeates call to CreateTimeSlots every 24 hours.
-			TimeSpan interval = TimeSpan.FromHours(24);
-			//calculate time to run the first time & delay to set the timer
-			//DateTime.Today gives time of midnight 00.00
-			var nextRunTime = DateOperations.Today().AddDays(1).AddHours(1);
-			var curTime = DateTime.UtcNow;
-			var firstInterval = nextRunTime.Subtract(curTime);
+            // timer repeates call to CreateTimeSlots every 24 hours.
+            TimeSpan interval = TimeSpan.FromHours(24);//.FromMinutes(1);//
+                                                        //calculate time to run the first time & delay to set the timer
+                                                        //DateTime.Today gives time of midnight 00.00
+            var nextRunTime = DateOperations.Today().AddDays(1).AddHours(1); // DateTime.Now.AddMinutes(2);//
+            var curTime = DateOperations.Now();// DateTime.Now;
+            var firstInterval = nextRunTime.Subtract(curTime);
 
             void action() {
                 var t1 = Task.Delay(firstInterval, cancellationToken);
                 t1.Wait(cancellationToken);
                 //create at expected time
+                _logger.LogInformation("First service run");
                 CreateTimeSlots(null);
                 //now schedule it to be called every 24 hours for future
                 // timer repeates call to CreateTimeSlots every 24 hours.
@@ -52,13 +56,16 @@ namespace uul_api.Services {
 
             return Task.CompletedTask;
         }
-
-        private async void CreateTimeSlots(object state) {
-            using var scope = _scopeFactory.CreateScope();
+        
+        private void CreateTimeSlots(object state) {
+            var scope = _scopeFactory.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<UULContext>();
-            var newSlots = await TimeSlotsFactory.CreateTodayTimeSlots(dbContext, 5);
-            dbContext.TimeSlots.AddRange(newSlots);
-            dbContext.SaveChanges();
+            var newSlots = TimeSlotsFactory.CreateTodayTimeSlots(dbContext, 11);
+            newSlots.Wait();
+            dbContext.TimeSlots.AddRange(newSlots.Result);
+            int rows = dbContext.SaveChanges();
+            _logger.LogInformation("Creation func affected " + rows + " rows, run at " + DateOperations.Now().ToString());
+            scope.Dispose();
         }
     }
 }

@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using uul_api.Models;
+using uul_api.Operations;
 
 namespace uul_api.Security {
 
@@ -31,7 +32,7 @@ namespace uul_api.Security {
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],
               _config["Jwt:Issuer"],
               claims,
-              expires: DateTime.Now.AddDays(360),
+              expires: DateOperations.Now().AddDays(360),
               signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
@@ -62,7 +63,7 @@ namespace uul_api.Security {
                 ApartmentCode = AdminAppCode,
                 Login = Admin,
                 IsActivated = true,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateOperations.Now(),
                 Hash = SaltAndHashPwd("thecownamedlolasayshola", salt),
                 Salt = salt,
             };
