@@ -26,7 +26,7 @@ namespace uul_api.Services {
             TimeSpan interval = TimeSpan.FromHours(24);//.FromMinutes(1);//
                                                         //calculate time to run the first time & delay to set the timer
                                                         //DateTime.Today gives time of midnight 00.00
-            var nextRunTime = DateOperations.Today().AddDays(1).AddHours(1); // DateTime.Now.AddMinutes(2);//
+            var nextRunTime = DateOperations.Today().AddDays(1).AddHours(7); // DateTime.Now.AddMinutes(2);//
             var curTime = DateOperations.Now();// DateTime.Now;
             var firstInterval = nextRunTime.Subtract(curTime);
 
